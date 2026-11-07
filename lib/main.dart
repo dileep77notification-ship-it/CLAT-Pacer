@@ -22,6 +22,7 @@ import 'screens/quant_screen.dart';
 import 'screens/english_screen.dart';
 import 'screens/mock_loading_screen.dart';
 import 'screens/daily_sprint_loading_screen.dart';
+import 'screens/brain_gym_screen.dart';
 import 'models/daily_sprint_models.dart';
 
 void main() {
@@ -822,6 +823,17 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (_) => const EnglishScreen(),
+                          ),
+                        ),
+                      ),
+                      PracticeTile(
+                        icon: Icons.fitness_center_rounded,
+                        color: AppColors.emerald400,
+                        title: 'Brain Gym',
+                        subtitle: 'Drill your weak topics',
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const BrainGymScreen(),
                           ),
                         ),
                       ),

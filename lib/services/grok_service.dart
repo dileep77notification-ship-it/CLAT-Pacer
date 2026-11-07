@@ -227,6 +227,22 @@ class GroqApiException implements Exception {
   String toString() => message;
 }
 
+/// Shared by every generator's `focusTopic` parameter (used by Brain Gym —
+/// see brain_gym_screen.dart): when set, this is appended to the normal
+/// user instruction so every question in the batch targets one specific
+/// topic bucket instead of rotating across the section's full topic list.
+/// [focusTopic] must be one of the exact topic slugs the section's own
+/// system prompt defines (e.g. "contract" for Legal Reasoning, "strengthen"
+/// for Logical Reasoning) — Brain Gym always passes a value it first read
+/// back from a real question's `topic` field, so this is never free text
+/// from the user.
+String _focusInstruction(String? focusTopic) {
+  if (focusTopic == null || focusTopic.trim().isEmpty) return '';
+  return ' Focus EVERY question in this batch specifically on the topic '
+      '"$focusTopic" only — do not rotate across other topics this time. '
+      'Still set the "topic" field to "$focusTopic" for every question.';
+}
+
 class GroqService {
   /// Generates [count] Legal Reasoning MCQs, internally split into batches
   /// of up to [_kMaxQuestionsPerBatch] with a pause between batches to stay
@@ -235,17 +251,21 @@ class GroqService {
   /// mock) without changes at the call site. [onProgress], if given, is
   /// called after each batch completes with (questions generated so far,
   /// total requested) so the UI can show real progress on multi-batch runs.
+  /// [focusTopic], if given, biases every question in the set onto that
+  /// one topic slug instead of rotating across the section's full topic
+  /// list — used by Brain Gym to drill a single weak topic.
   static Future<List<QuizQuestion>> generateQuestions({
     required String apiKey,
     int count = 10,
     void Function(int generated, int total)? onProgress,
+    String? focusTopic,
   }) {
     return _generateInBatches(
       apiKey: apiKey,
       count: count,
       systemPrompt: _kLegalReasoningSystemPrompt,
       userInstruction: (n) =>
-          'Generate exactly $n fresh Legal Reasoning MCQs now via the submit_mcqs tool.',
+          'Generate exactly $n fresh Legal Reasoning MCQs now via the submit_mcqs tool.${_focusInstruction(focusTopic)}',
       onProgress: onProgress,
     );
   }
@@ -259,6 +279,7 @@ class GroqService {
     required List<RssHeadline> headlines,
     int count = 10,
     void Function(int generated, int total)? onProgress,
+    String? focusTopic,
   }) {
     final top = headlines.take(15).toList();
     final headlinesBlock = top.isEmpty
@@ -277,7 +298,7 @@ class GroqService {
       count: count,
       systemPrompt: systemPrompt,
       userInstruction: (n) =>
-          'Generate exactly $n fresh GK/Current Affairs MCQs now via the submit_mcqs tool, following the 70/30 headline/static-GK mix and spreading across different headlines.',
+          'Generate exactly $n fresh GK/Current Affairs MCQs now via the submit_mcqs tool, following the 70/30 headline/static-GK mix and spreading across different headlines.${_focusInstruction(focusTopic)}',
       onProgress: onProgress,
     );
   }
@@ -289,13 +310,14 @@ class GroqService {
     required String apiKey,
     int count = 10,
     void Function(int generated, int total)? onProgress,
+    String? focusTopic,
   }) {
     return _generateInBatches(
       apiKey: apiKey,
       count: count,
       systemPrompt: _kLogicalReasoningSystemPrompt,
       userInstruction: (n) =>
-          'Generate exactly $n fresh Logical Reasoning MCQs now via the submit_mcqs tool, rotating through the assumption/inference/strengthen/weaken/conclusion archetypes.',
+          'Generate exactly $n fresh Logical Reasoning MCQs now via the submit_mcqs tool, rotating through the assumption/inference/strengthen/weaken/conclusion archetypes.${_focusInstruction(focusTopic)}',
       onProgress: onProgress,
     );
   }
@@ -309,13 +331,14 @@ class GroqService {
     required String apiKey,
     int count = 10,
     void Function(int generated, int total)? onProgress,
+    String? focusTopic,
   }) {
     return _generateInBatches(
       apiKey: apiKey,
       count: count,
       systemPrompt: _kQuantSystemPrompt,
       userInstruction: (n) =>
-          'Generate exactly $n fresh Quantitative Techniques MCQs now via the submit_mcqs tool. Double-check every calculation before submitting.',
+          'Generate exactly $n fresh Quantitative Techniques MCQs now via the submit_mcqs tool. Double-check every calculation before submitting.${_focusInstruction(focusTopic)}',
       onProgress: onProgress,
     );
   }
@@ -332,6 +355,7 @@ class GroqService {
     required String apiKey,
     int count = 10,
     void Function(int generated, int total)? onProgress,
+    String? focusTopic,
   }) async {
     final questions = <QuizQuestion>[];
     var remaining = count;
@@ -349,6 +373,7 @@ class GroqService {
       final passageQuestions = await _generatePassageBatch(
         apiKey: apiKey,
         questionCount: passageSize,
+        focusTopic: focusTopic,
       );
       questions.addAll(passageQuestions);
       remaining -= passageSize;
@@ -361,9 +386,10 @@ class GroqService {
   static Future<List<QuizQuestion>> _generatePassageBatch({
     required String apiKey,
     required int questionCount,
+    String? focusTopic,
   }) async {
     final userContent =
-        'Write one original ~450-500 word passage and exactly $questionCount questions about it now, via the submit_rc_passage tool, rotating through the main-idea/inference/vocabulary/tone/supported-statement archetypes.';
+        'Write one original ~450-500 word passage and exactly $questionCount questions about it now, via the submit_rc_passage tool, rotating through the main-idea/inference/vocabulary/tone/supported-statement archetypes.${_focusInstruction(focusTopic)}';
 
     for (var attempt = 1; attempt <= _kMaxAttempts; attempt++) {
       http.Response response;
