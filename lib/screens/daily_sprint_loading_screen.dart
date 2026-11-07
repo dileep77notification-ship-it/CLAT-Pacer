@@ -1,15 +1,16 @@
 // ============================================================================
 // DAILY SPRINT — LOADING SCREEN
 // Pushed when "Start Today's Sprint" is tapped. Checks for a Groq key,
-// fetches today's headlines + generates the passage (DailyArticleService),
-// then replaces itself with PassagePacerScreen. Same no-key/loading/error
+// fetches today's headlines + generates 3-4 passages (DailyArticleService),
+// then replaces itself with DailySprintListScreen. Same no-key/loading/error
 // pattern as LegalReasoningScreen, for a consistent app-wide UX.
 // ============================================================================
 
 import 'package:flutter/material.dart';
-import '../main.dart' show AppColors, PassagePacerScreen;
+import '../main.dart' show AppColors;
 import '../services/api_key_service.dart';
 import '../services/daily_article_service.dart';
+import 'daily_sprint_list_screen.dart';
 import 'settings_screen.dart';
 
 enum _Status { checking, noKey, loading, error }
@@ -43,12 +44,12 @@ class _DailySprintLoadingScreenState extends State<DailySprintLoadingScreen> {
 
     try {
       final key = await ApiKeyService.getKey();
-      final passage =
-          await DailyArticleService.generateTodaysSprint(apiKey: key!);
+      final passages =
+          await DailyArticleService.generateTodaysSprints(apiKey: key!);
       if (!mounted) return;
       await Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (_) => PassagePacerScreen(passage: passage),
+          builder: (_) => DailySprintListScreen(passages: passages),
         ),
       );
     } catch (e) {
@@ -84,7 +85,7 @@ class _DailySprintLoadingScreenState extends State<DailySprintLoadingScreen> {
               CircularProgressIndicator(color: AppColors.indigo400),
               SizedBox(height: 16),
               Text(
-                "Picking today's most relevant story and generating your sprint…",
+                "Picking today's most relevant stories and generating your sprint — this takes under a minute per story…",
                 textAlign: TextAlign.center,
                 style: TextStyle(color: AppColors.slate400),
               ),

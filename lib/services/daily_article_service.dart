@@ -1,16 +1,22 @@
 // ============================================================================
 // DAILY ARTICLE SERVICE
-// Spec §6: fetch today's headlines (RssService), have Groq pick the single
-// most CLAT-relevant story and write an original CLAT-style passage + 5
-// MCQs + 5 flashcards from it, in one call. This is the live replacement
-// for main.dart's old hardcoded `todaysSprint` constant, and the same
-// output doubles as seed content for the GK/Current-Affairs quiz mode
-// (built as a follow-up step reusing this service).
+// Spec §6: fetch today's headlines (RssService), have Groq pick the most
+// CLAT-relevant stories and write an original CLAT-style passage + 5 MCQs +
+// 5 flashcards for each. This is the live replacement for main.dart's old
+// hardcoded `todaysSprint` constant, and the same output doubles as seed
+// content for the GK/Current-Affairs quiz mode.
 //
-// This is a single Groq call (not batched like GroqService's Legal
-// Reasoning generator) — total output here (~450-500 word passage + 5
-// questions + 5 short flashcards) runs well under the model's 8,000
-// tokens/minute free-tier cap on its own.
+// Nov 2026: expanded from a single daily passage to 3-4, now that RSS
+// sourcing covers five feeds (The Hindu National/Editorial, Bar & Bench,
+// Indian Express Explained, LiveLaw Top Stories) instead of three. Each
+// passage is still generated with its own Groq call, same shape and same
+// ~3500 max_tokens budget as the original single-passage design — doing one
+// giant call for 4 passages at once would multiply output tokens ~4x and
+// risk tripping Groq's free-tier 8,000 tokens/minute cap in a single
+// request. Sequential calls paced 10s apart (matching GroqService's
+// batching convention elsewhere in this app) are slower but safe, and a
+// failure on one slot doesn't cost the others — same "skip what fails"
+// resilience RssService already uses for feeds.
 // ============================================================================
 
 import 'dart:convert';
@@ -29,6 +35,16 @@ const List<Duration> _kRetryDelays = [
   Duration(seconds: 30),
 ];
 
+/// How many passages a full Daily Sprint tries to produce. May return fewer
+/// if the headline pool runs out of distinct CLAT-relevant stories or a
+/// generation attempt fails outright after retries.
+const int kDailySprintPassageCount = 4;
+
+/// Pause between each passage's Groq call, to stay well under the free-tier
+/// 8,000 tokens/minute cap across the whole batch (same reasoning as
+/// GroqService's _generateInBatches pause).
+const Duration _kBetweenPassagesPause = Duration(seconds: 10);
+
 class DailyArticleException implements Exception {
   final String message;
   DailyArticleException(this.message);
@@ -36,15 +52,24 @@ class DailyArticleException implements Exception {
   String toString() => message;
 }
 
-const String _systemPrompt = '''
-You are a CLAT (Common Law Admission Test) content writer producing the
-daily Current Affairs passage. You will be given a list of today's news
-headlines from Indian sources. Your job:
+String _systemPrompt(List<String> excludeHeadlines) {
+  final excludeClause = excludeHeadlines.isEmpty
+      ? ''
+      : '\n\nDo NOT pick any of these stories — they are already covered by '
+          'other passages today:\n' +
+          excludeHeadlines.map((h) => '- $h').join('\n');
 
-1. Pick the SINGLE most CLAT-relevant story — prioritize law, judiciary,
-   Parliament/legislation, constitutional matters, and major national or
-   international events with civic/legal significance. Prefer the kind of
-   story that would plausibly appear in a CLAT UG Current Affairs section.
+  return '''
+You are a CLAT (Common Law Admission Test) content writer producing one
+passage of the daily Current Affairs set. You will be given a list of
+today's news headlines from Indian sources. Your job:
+
+1. Pick the SINGLE most CLAT-relevant story from the list that is not
+   already covered (see exclusion list below, if any) — prioritize law,
+   judiciary, Parliament/legislation, constitutional matters, and major
+   national or international events with civic/legal significance. Prefer
+   the kind of story that would plausibly appear in a CLAT UG Current
+   Affairs section.
 2. Write an ORIGINAL ~450-500 word passage in CLAT comprehension-passage
    style about that story's topic, using your own general knowledge of the
    subject — this is an educational passage inspired by the headline, not a
@@ -53,6 +78,8 @@ headlines from Indian sources. Your job:
    passage (4 options each, one correct).
 4. Write exactly 5 short flashcard facts related to the passage's topic —
    each a short standalone fact a student should remember.
+5. Report back the exact headline text (copied from the list you were
+   given) that you based this passage on, via the source_headline field.
 
 IMPORTANT RULES:
 - Respond entirely in English. Do not include any non-English characters,
@@ -60,23 +87,71 @@ IMPORTANT RULES:
 - Do not restate the options as text inside a question's own text — options
   belong only in the options array.
 - Always provide exactly 4 options per question, and exactly 5 questions
-  and 5 flashcards total.
+  and 5 flashcards total.$excludeClause
 ''';
+}
 
 class DailyArticleService {
-  static Future<PassageModel> generateTodaysSprint({
+  /// Generates today's full set of Daily Sprint passages (3-4, see
+  /// [kDailySprintPassageCount]). Fetches headlines once, then makes one
+  /// Groq call per passage, each told which stories earlier calls already
+  /// used so the set doesn't repeat a story.
+  ///
+  /// Throws only if every single attempt fails and nothing could be
+  /// generated; otherwise returns whatever passages did succeed, even if
+  /// that's fewer than [count].
+  static Future<List<PassageModel>> generateTodaysSprints({
     required String apiKey,
+    int count = kDailySprintPassageCount,
   }) async {
     final headlines = await RssService.fetchAllHeadlines();
 
-    // Keep the prompt compact: the most recent ~15 headlines across all
-    // feeds is plenty of choice without ballooning input tokens.
-    final candidates = headlines.take(15).toList();
+    // Wider pool than the old single-passage version (15) since we're now
+    // picking several distinct stories out of it, across five feeds.
+    final candidates = headlines.take(30).toList();
     final headlinesText = candidates
         .map((h) =>
             '- [${h.source}] ${h.title}${h.description != null ? ' — ${h.description}' : ''}')
         .join('\n');
 
+    final passages = <PassageModel>[];
+    final usedHeadlines = <String>[];
+    Object? lastError;
+
+    for (var i = 0; i < count; i++) {
+      try {
+        final result = await _generateOnePassage(
+          apiKey: apiKey,
+          headlinesText: headlinesText,
+          excludeHeadlines: usedHeadlines,
+        );
+        passages.add(result.passage);
+        usedHeadlines.add(result.sourceHeadline);
+      } catch (e) {
+        lastError = e;
+        // Skip this slot and keep going — one failed passage shouldn't
+        // cost the rest of the day's set.
+      }
+
+      final isLast = i == count - 1;
+      if (!isLast) {
+        await Future.delayed(_kBetweenPassagesPause);
+      }
+    }
+
+    if (passages.isEmpty) {
+      throw DailyArticleException(
+          lastError != null ? lastError.toString() : 'Failed to generate today\'s sprint.');
+    }
+
+    return passages;
+  }
+
+  static Future<_GeneratedPassage> _generateOnePassage({
+    required String apiKey,
+    required String headlinesText,
+    required List<String> excludeHeadlines,
+  }) async {
     for (var attempt = 1; attempt <= _kMaxAttempts; attempt++) {
       http.Response response;
       try {
@@ -90,11 +165,14 @@ class DailyArticleService {
               body: jsonEncode({
                 'model': _kGroqModel,
                 'messages': [
-                  {'role': 'system', 'content': _systemPrompt},
+                  {
+                    'role': 'system',
+                    'content': _systemPrompt(excludeHeadlines),
+                  },
                   {
                     'role': 'user',
                     'content':
-                        "Today's headlines:\n$headlinesText\n\nPick the single most CLAT-relevant story and generate the passage, questions, and flashcards via the submit_daily_passage tool.",
+                        "Today's headlines:\n$headlinesText\n\nPick the single most CLAT-relevant story not already covered and generate the passage, questions, and flashcards via the submit_daily_passage tool.",
                   },
                 ],
                 'tools': [_submitDailyPassageTool],
@@ -147,6 +225,11 @@ class DailyArticleService {
       'parameters': {
         'type': 'object',
         'properties': {
+          'source_headline': {
+            'type': 'string',
+            'description':
+                'The exact headline text, copied from the provided list, that this passage is based on.',
+          },
           'title': {'type': 'string'},
           'body': {
             'type': 'string',
@@ -185,12 +268,12 @@ class DailyArticleService {
             },
           },
         },
-        'required': ['title', 'body', 'questions', 'flashcards'],
+        'required': ['source_headline', 'title', 'body', 'questions', 'flashcards'],
       },
     },
   };
 
-  static PassageModel _parsePassage(String responseBody) {
+  static _GeneratedPassage _parsePassage(String responseBody) {
     Map<String, dynamic> body;
     try {
       body = jsonDecode(responseBody) as Map<String, dynamic>;
@@ -241,15 +324,26 @@ class DailyArticleService {
         throw DailyArticleException('Groq\'s response was missing questions or flashcards.');
       }
 
-      return PassageModel(
-        title: args['title'] as String,
-        body: args['body'] as String,
-        questions: questions,
-        flashcards: flashcards,
+      final sourceHeadline = args['source_headline'] as String? ?? '';
+
+      return _GeneratedPassage(
+        passage: PassageModel(
+          title: args['title'] as String,
+          body: args['body'] as String,
+          questions: questions,
+          flashcards: flashcards,
+        ),
+        sourceHeadline: sourceHeadline,
       );
     } catch (e) {
       throw DailyArticleException(
           'Passage format from Groq didn\'t match what was expected ($e).');
     }
   }
+}
+
+class _GeneratedPassage {
+  final PassageModel passage;
+  final String sourceHeadline;
+  const _GeneratedPassage({required this.passage, required this.sourceHeadline});
 }

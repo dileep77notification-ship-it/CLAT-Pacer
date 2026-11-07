@@ -1,10 +1,19 @@
 // ============================================================================
 // RSS SERVICE
-// Fetches today's headlines from the feeds validated in CLAT App spec §13.2.
-// LiveLaw is deliberately excluded: its /feed endpoint 500'd and /rss.xml
-// 404'd in testing (spec §13.3: swap a failing source, don't keep debugging
-// it). The remaining three cleared the pass bar on their own (3 of 4 needed
-// only 2).
+// Fetches today's headlines from the feeds validated in CLAT App spec §13.2,
+// plus two added for broader daily-editorial coverage (Nov 2026):
+//   - Indian Express — Explained (indianexpress.com/section/explained/feed/):
+//     confirmed working, standard WordPress feed.
+//   - LiveLaw — Top Stories (livelaw.in/category/mobile-notification/
+//     google_feeds.xml): LiveLaw's own /feed/ and /rss.xml endpoints still
+//     don't work (500 / 404, same as originally found), but this category
+//     feed is LiveLaw's actual top-stories/breaking-news feed under a
+//     different URL pattern, and it validated cleanly — Supreme Court/High
+//     Court rulings tagged Top Stories, Constitutional Law, Criminal Law
+//     etc. PRS Legislative Research and PIB were checked too: PRS has no
+//     discoverable RSS feed, and PIB's only working feeds are Hindi-language
+//     (ModId params all resolved to Devanagari content) — both skipped
+//     rather than wired in half-working.
 //
 // Dart has no built-in XML parser, so this uses the `xml` package
 // (pub.dev) — added to pubspec.yaml.
@@ -41,6 +50,10 @@ const List<RssFeed> _kFeeds = [
   RssFeed('The Hindu — Editorial',
       'https://www.thehindu.com/opinion/editorial/feeder/default.rss'),
   RssFeed('Bar & Bench', 'https://www.barandbench.com/feed'),
+  RssFeed('Indian Express — Explained',
+      'https://indianexpress.com/section/explained/feed/'),
+  RssFeed('LiveLaw — Top Stories',
+      'https://www.livelaw.in/category/mobile-notification/google_feeds.xml'),
 ];
 
 class RssServiceException implements Exception {
