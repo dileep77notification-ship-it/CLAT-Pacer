@@ -1,7 +1,8 @@
 // ============================================================================
 // DAILY SPRINT — LIST SCREEN
-// Pushed (replacing DailySprintLoadingScreen) once today's 3-4 passages are
-// generated. Shows one card per passage; tapping a card pushes the existing
+// Pushed (replacing DailySprintLoadingScreen) once today's passages (3 by
+// default, see kDailySprintPassageCount) are generated. Shows one card per
+// passage; tapping a card pushes the existing
 // PassagePacerScreen -> QuestionsScreen -> ResultsScreen -> FlashcardsScreen
 // flow unchanged, for that one passage. When that flow fully unwinds (user
 // backs out or finishes), control returns here so another passage can be
