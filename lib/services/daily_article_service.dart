@@ -38,12 +38,23 @@ const List<Duration> _kRetryDelays = [
 /// How many passages a full Daily Sprint tries to produce. May return fewer
 /// if the headline pool runs out of distinct CLAT-relevant stories or a
 /// generation attempt fails outright after retries.
-const int kDailySprintPassageCount = 4;
+///
+/// Dropped from 4 to 3 (Nov 2026) after real-world testing showed 4
+/// sequential calls right before using another Groq-backed feature (e.g.
+/// Legal Reasoning) was enough to trip the free-tier per-minute limit on
+/// the next feature's own request. 3 leaves more headroom.
+const int kDailySprintPassageCount = 3;
 
-/// Pause between each passage's Groq call, to stay well under the free-tier
-/// 8,000 tokens/minute cap across the whole batch (same reasoning as
-/// GroqService's _generateInBatches pause).
-const Duration _kBetweenPassagesPause = Duration(seconds: 10);
+/// Pause between each passage's Groq call. Widened from 10s to 15s for the
+/// same reason as the count drop above — more breathing room under the
+/// free-tier rate limit, at the cost of a slightly longer total wait.
+const Duration _kBetweenPassagesPause = Duration(seconds: 15);
+
+/// Reports what's actually happening during generateTodaysSprints, so a
+/// loading screen can show real status instead of a static guess — a slow
+/// run (e.g. retrying after a 429) should look visibly different from a
+/// frozen one.
+typedef SprintProgress = void Function(String message);
 
 class DailyArticleException implements Exception {
   final String message;
@@ -103,7 +114,9 @@ class DailyArticleService {
   static Future<List<PassageModel>> generateTodaysSprints({
     required String apiKey,
     int count = kDailySprintPassageCount,
+    SprintProgress? onProgress,
   }) async {
+    onProgress?.call("Fetching today's headlines…");
     final headlines = await RssService.fetchAllHeadlines();
 
     // Wider pool than the old single-passage version (15) since we're now
@@ -119,22 +132,28 @@ class DailyArticleService {
     Object? lastError;
 
     for (var i = 0; i < count; i++) {
+      onProgress?.call('Generating story ${i + 1} of $count…');
       try {
         final result = await _generateOnePassage(
           apiKey: apiKey,
           headlinesText: headlinesText,
           excludeHeadlines: usedHeadlines,
+          onRetry: (attempt, reason) => onProgress?.call(
+              'Story ${i + 1} of $count — $reason, retrying (attempt ${attempt + 1} of $_kMaxAttempts)…'),
         );
         passages.add(result.passage);
         usedHeadlines.add(result.sourceHeadline);
       } catch (e) {
         lastError = e;
+        onProgress?.call('Story ${i + 1} of $count failed — skipping it.');
         // Skip this slot and keep going — one failed passage shouldn't
         // cost the rest of the day's set.
       }
 
       final isLast = i == count - 1;
       if (!isLast) {
+        onProgress?.call('Pausing briefly before the next story '
+            '(keeps Groq\'s rate limit happy)…');
         await Future.delayed(_kBetweenPassagesPause);
       }
     }
@@ -151,6 +170,7 @@ class DailyArticleService {
     required String apiKey,
     required String headlinesText,
     required List<String> excludeHeadlines,
+    void Function(int attempt, String reason)? onRetry,
   }) async {
     for (var attempt = 1; attempt <= _kMaxAttempts; attempt++) {
       http.Response response;
@@ -186,6 +206,7 @@ class DailyArticleService {
             .timeout(const Duration(seconds: 60));
       } catch (e) {
         if (attempt < _kMaxAttempts) {
+          onRetry?.call(attempt, 'network error');
           await Future.delayed(_kRetryDelays[attempt - 1]);
           continue;
         }
@@ -199,6 +220,7 @@ class DailyArticleService {
 
       if (response.statusCode == 429 || response.statusCode == 503) {
         if (attempt < _kMaxAttempts) {
+          onRetry?.call(attempt, 'Groq is rate-limiting requests');
           await Future.delayed(_kRetryDelays[attempt - 1]);
           continue;
         }

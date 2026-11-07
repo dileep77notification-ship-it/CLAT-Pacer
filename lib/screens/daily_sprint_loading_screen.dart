@@ -26,6 +26,7 @@ class DailySprintLoadingScreen extends StatefulWidget {
 class _DailySprintLoadingScreenState extends State<DailySprintLoadingScreen> {
   _Status _status = _Status.checking;
   String? _error;
+  String _progress = "Picking today's most relevant stories…";
 
   @override
   void initState() {
@@ -44,8 +45,12 @@ class _DailySprintLoadingScreenState extends State<DailySprintLoadingScreen> {
 
     try {
       final key = await ApiKeyService.getKey();
-      final passages =
-          await DailyArticleService.generateTodaysSprints(apiKey: key!);
+      final passages = await DailyArticleService.generateTodaysSprints(
+        apiKey: key!,
+        onProgress: (message) {
+          if (mounted) setState(() => _progress = message);
+        },
+      );
       if (!mounted) return;
       await Navigator.of(context).pushReplacement(
         MaterialPageRoute(
@@ -78,16 +83,25 @@ class _DailySprintLoadingScreenState extends State<DailySprintLoadingScreen> {
     switch (_status) {
       case _Status.checking:
       case _Status.loading:
-        return const Center(
+        return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CircularProgressIndicator(color: AppColors.indigo400),
-              SizedBox(height: 16),
+              const CircularProgressIndicator(color: AppColors.indigo400),
+              const SizedBox(height: 16),
               Text(
-                "Picking today's most relevant stories and generating your sprint — this takes under a minute per story…",
+                _progress,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.slate400),
+                style: const TextStyle(color: AppColors.slate400),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Several Groq calls run one after another, with pauses to '
+                'stay under its free-tier rate limit — this can take a few '
+                'minutes, longer if Groq is busy. If this line keeps '
+                'changing, it\'s working.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: AppColors.slate600, fontSize: 12),
               ),
             ],
           ),
