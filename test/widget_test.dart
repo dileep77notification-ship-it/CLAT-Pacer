@@ -30,7 +30,45 @@ void main() {
     await tester.pumpWidget(const ClatPacerApp());
     await tester.pumpAndSettle();
 
-    expect(find.text('CLAT Daily Sprint'), findsOneWidget);
-    expect(find.text("Ready for today's sprint?"), findsOneWidget);
+    expect(find.text('Ready to sprint?'), findsOneWidget);
+    expect(find.text("Today's Daily Sprint"), findsOneWidget);
+  });
+
+  group('Practice by section filters', () {
+    Future<void> openHome(WidgetTester tester) async {
+      SharedPreferences.setMockInitialValues({});
+      await tester.binding.setSurfaceSize(const Size(430, 1600));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(const ClatPacerApp());
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('shows every section by default', (tester) async {
+      await openHome(tester);
+      expect(find.text('Legal Reasoning'), findsOneWidget);
+      expect(find.text('GK / Current Affairs'), findsOneWidget);
+    });
+
+    testWidgets('the Verbal chip keeps only verbal sections', (tester) async {
+      await openHome(tester);
+      await tester.tap(find.text('Verbal'));
+      await tester.pumpAndSettle();
+      expect(find.text('GK / Current Affairs'), findsOneWidget);
+      expect(find.text('English & RC'), findsOneWidget);
+      expect(find.text('Legal Reasoning'), findsNothing);
+    });
+
+    testWidgets('search filters by title and shows an empty state',
+        (tester) async {
+      await openHome(tester);
+      await tester.enterText(find.byType(TextField), 'logic');
+      await tester.pumpAndSettle();
+      expect(find.text('Logical Reasoning'), findsOneWidget);
+      expect(find.text('Legal Reasoning'), findsNothing);
+
+      await tester.enterText(find.byType(TextField), 'zzz');
+      await tester.pumpAndSettle();
+      expect(find.text('No sections match "zzz".'), findsOneWidget);
+    });
   });
 }

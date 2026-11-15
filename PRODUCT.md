@@ -72,6 +72,7 @@ After each session: score + reviewable list of all questions with correct answer
 
 ### 4.6 Settings
 - Encrypted Groq API key management (Android Keystore / iOS Keychain via flutter_secure_storage).
+- **Daily reminder:** opt-in notification at a user-chosen time (default 7:00 PM, device time zone) nudging the user to finish the Daily Sprint. Today's reminder is skipped once a sprint is completed. Android, iOS and macOS; schedules a rolling 30-day window that is refreshed whenever the app opens.
 
 ---
 
@@ -135,8 +136,9 @@ Home
 
 ### 5.5 Design System
 
-- **Palette:** Tailwind-inspired dark (Slate 950/900 background, Indigo primary, Emerald success, Rose error, Amber warning)
-- **Layout tokens:** 22px / 16px / 12px radii; generous padding; icon-badge tiles
+- **Palette:** light, soft-sky theme (pale-blue page background, white cards with soft shadows, blue primary, teal success, rose error, amber warning). Tokens live in `lib/theme/app_theme.dart` (`AppColors`, `AppStyle`); text colours meet WCAG AA on both the page and card backgrounds.
+- **Layout tokens:** 28 / 24 / 16 / 12px radii; pill buttons and chips; pastel-gradient feature cards; floating bottom navigation on Home
+- **Home:** greeting + streak pill, gradient Daily Sprint and Mock Test banners, stat cards, searchable and filterable (All / Verbal / Reasoning / Quant / Drills) horizontal section cards
 - **Interaction:** Elimination trainer (strike options), swipeable PageView flashcards, live progress on loading screens
 
 ---
@@ -176,7 +178,7 @@ Home
 |---|---------|-----------|
 | M1 | **Study Plan / Schedule** | Let student set exam date; auto-generate a day-by-day plan covering all sections |
 | M2 | **Bookmarks / Saved Questions** | Star a question from results screen to revisit it in a "Saved" deck |
-| M3 | **Daily Reminder Notification** | Push notification at a user-set time to protect the streak |
+| M3 | ~~**Daily Reminder Notification**~~ ✅ Done | Local notification at a user-set time to protect the streak (see 4.6) |
 | M4 | **Explanation Quality Toggle** | Option for brief vs. detailed explanations (some users prefer just the correct answer) |
 | M5 | **Data Interpretation (Quant)** | Tables and simple bar/pie charts for data interpretation Qs — closer to real CLAT |
 | M6 | **Cloud Backup (optional opt-in)** | Firebase-based export of stats so users can switch devices |

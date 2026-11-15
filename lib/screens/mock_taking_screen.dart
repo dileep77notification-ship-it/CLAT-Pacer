@@ -279,7 +279,7 @@ class _MockTakingScreenState extends State<MockTakingScreen> {
 
   Color _timerColor() {
     if (_remainingSeconds <= 60) return AppColors.dangerText;
-    if (_remainingSeconds <= 5 * 60) return AppColors.warning;
+    if (_remainingSeconds <= 5 * 60) return AppColors.warningText;
     return AppColors.textBody;
   }
 
@@ -522,7 +522,7 @@ class _MockTakingScreenState extends State<MockTakingScreen> {
                           padding: const EdgeInsets.only(bottom: 10),
                           child: Material(
                             color: isSelected
-                                ? AppColors.primary.withOpacity(0.15)
+                                ? AppColors.primary.withValues(alpha: 0.09)
                                 : AppColors.surface,
                             borderRadius: BorderRadius.circular(AppStyle.radiusMd),
                             child: InkWell(

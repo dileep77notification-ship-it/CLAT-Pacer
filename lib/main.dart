@@ -13,6 +13,7 @@
 
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/settings_screen.dart';
 import 'screens/legal_reasoning_screen.dart';
@@ -24,265 +25,19 @@ import 'screens/mock_loading_screen.dart';
 import 'screens/daily_sprint_loading_screen.dart';
 import 'screens/brain_gym_screen.dart';
 import 'models/daily_sprint_models.dart';
+import 'services/daily_article_service.dart' show kDailySprintPassageCount;
 import 'services/notification_service.dart';
+import 'theme/app_theme.dart';
+import 'widgets/home_widgets.dart';
+
+// Existing screens import AppColors / AppStyle / IconBadge / SectionHeader from
+// here; the definitions now live in theme/app_theme.dart.
+export 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationService.instance.init();
   runApp(const ClatPacerApp());
-}
-
-// ============================================================================
-// SECTION 1 — THEME
-// Tailwind-inspired dark palette: slate background, indigo primary,
-// emerald accent for success/correct states.
-// ============================================================================
-
-class AppColors {
-  // Slate scale (backgrounds / surfaces / text)
-  static const bg = Color(0xFF0B1120);
-  static const surface = Color(0xFF0F172A);
-  static const tint = Color(0xFF1E293B);
-  static const lineStrong = Color(0xFF334155);
-  static const textFaint = Color(0xFF475569);
-  static const textMuted = Color(0xFF94A3B8);
-  static const textBody = Color(0xFFCBD5E1);
-  static const textPrimary = Color(0xFFF1F5F9);
-
-  // Indigo scale (primary actions / accents)
-  static const primary = Color(0xFF6366F1);
-  static const primaryText = Color(0xFF818CF8);
-  static const primaryDark = Color(0xFF4F46E5);
-
-  // Emerald scale (success / correct / streak flame)
-  static const success = Color(0xFF10B981);
-  static const successText = Color(0xFF34D399);
-
-  // Rose (incorrect / destructive / strike)
-  static const danger = Color(0xFFF43F5E);
-  static const dangerText = Color(0xFFFB7185);
-
-  // Slightly lighter slate for unselected option text (kept distinct from
-  // textPrimary so selected vs. unselected options read differently at a glance)
-  static const textSoft = Color(0xFFE2E8F0);
-
-  // Amber (timer warning)
-  static const warning = Color(0xFFFBBF24);
-}
-
-// ============================================================================
-// AIRBNB-STYLE LAYOUT TOKENS
-// Kept the dark slate palette above, but borrowed Airbnb's layout language
-// on top of it: larger corner radii, more generous whitespace, icon-badge
-// tiles instead of plain outlined buttons. Every screen in the app should
-// reach for these constants/widgets instead of hand-rolling its own radius
-// or padding number, so a future look change is one place, not twenty.
-// ============================================================================
-
-class AppStyle {
-  static const double radiusLg = 22.0; // cards, hero banners
-  static const double radiusMd = 16.0; // buttons, tiles, chips
-  static const double radiusSm = 12.0; // small pills, badges
-  static const double pagePadding = 20.0;
-  static const double sectionGap = 28.0;
-}
-
-/// Bold title + optional muted subtitle, used to open every major section
-/// of a screen — the "Homes / Experiences" style heading Airbnb uses above
-/// each horizontally-scrolling or gridded group.
-class SectionHeader extends StatelessWidget {
-  final String title;
-  final String? subtitle;
-  final EdgeInsetsGeometry padding;
-
-  const SectionHeader({
-    super.key,
-    required this.title,
-    this.subtitle,
-    this.padding = const EdgeInsets.only(bottom: 14),
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: padding,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 21,
-              fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
-              letterSpacing: -0.3,
-            ),
-          ),
-          if (subtitle != null) ...[
-            const SizedBox(height: 4),
-            Text(
-              subtitle!,
-              style: const TextStyle(
-                  color: AppColors.textMuted, fontSize: 13.5, height: 1.4),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-/// A rounded icon in a soft tinted circle-square — Airbnb's category-tile
-/// icon treatment. [size] is the outer box; the icon itself is ~55% of it.
-class IconBadge extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final double size;
-
-  const IconBadge({
-    super.key,
-    required this.icon,
-    required this.color,
-    this.size = 46,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(size * 0.32),
-      ),
-      alignment: Alignment.center,
-      child: Icon(icon, color: color, size: size * 0.52),
-    );
-  }
-}
-
-/// A tappable, icon-badged card — Airbnb's "category" tile. Used on Home
-/// for the practice-section grid, and reusable anywhere else a grid of
-/// equally-weighted choices is needed.
-class PracticeTile extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  const PracticeTile({
-    super.key,
-    required this.icon,
-    required this.color,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(AppStyle.radiusLg),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppStyle.radiusLg),
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(AppStyle.radiusLg),
-            border: Border.all(color: AppColors.tint),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              IconBadge(icon: icon, color: color),
-              const SizedBox(height: 14),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 14.5,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
-                  height: 1.25,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-ThemeData buildAppTheme() {
-  final base = ThemeData.dark(useMaterial3: true);
-  return base.copyWith(
-    scaffoldBackgroundColor: AppColors.bg,
-    primaryColor: AppColors.primary,
-    colorScheme: base.colorScheme.copyWith(
-      primary: AppColors.primary,
-      secondary: AppColors.success,
-      surface: AppColors.surface,
-      error: AppColors.danger,
-    ),
-    textTheme: base.textTheme.apply(
-      fontFamily: 'Roboto',
-      bodyColor: AppColors.textPrimary,
-      displayColor: AppColors.textPrimary,
-    ),
-    appBarTheme: const AppBarTheme(
-      backgroundColor: AppColors.bg,
-      elevation: 0,
-      centerTitle: false,
-      iconTheme: IconThemeData(color: AppColors.textPrimary),
-      titleTextStyle: TextStyle(
-        color: AppColors.textPrimary,
-        fontSize: 20,
-        fontWeight: FontWeight.w700,
-      ),
-    ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppStyle.radiusMd),
-        ),
-        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-        elevation: 0,
-      ),
-    ),
-    outlinedButtonTheme: OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.textPrimary,
-        side: const BorderSide(color: AppColors.lineStrong),
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppStyle.radiusMd),
-        ),
-        textStyle: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w700),
-      ),
-    ),
-    cardTheme: CardThemeData(
-      color: AppColors.surface,
-      elevation: 0,
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppStyle.radiusLg),
-        side: const BorderSide(color: AppColors.tint, width: 1),
-      ),
-    ),
-    dividerColor: AppColors.tint,
-  );
 }
 
 class ClatPacerApp extends StatelessWidget {
@@ -556,8 +311,97 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
+enum _SectionGroup { verbal, reasoning, numeric, drills }
+
+class _PracticeSection {
+  final String title;
+  final String subtitle;
+  final String meta;
+  final IconData icon;
+  final List<Color> colors;
+  final _SectionGroup group;
+  final Widget Function() builder;
+
+  const _PracticeSection({
+    required this.title,
+    required this.subtitle,
+    required this.meta,
+    required this.icon,
+    required this.colors,
+    required this.group,
+    required this.builder,
+  });
+}
+
+final List<_PracticeSection> _practiceSections = [
+  _PracticeSection(
+    title: 'Legal Reasoning',
+    subtitle: 'Principle + facts',
+    meta: '10 questions',
+    icon: Icons.gavel_rounded,
+    colors: AppColors.gradBlue,
+    group: _SectionGroup.reasoning,
+    builder: () => const LegalReasoningScreen(),
+  ),
+  _PracticeSection(
+    title: 'GK / Current Affairs',
+    subtitle: 'Headline-grounded',
+    meta: '10 questions',
+    icon: Icons.public_rounded,
+    colors: AppColors.gradOrange,
+    group: _SectionGroup.verbal,
+    builder: () => const GkQuizScreen(),
+  ),
+  _PracticeSection(
+    title: 'Logical Reasoning',
+    subtitle: 'Argument-based',
+    meta: '10 questions',
+    icon: Icons.psychology_rounded,
+    colors: AppColors.gradPurple,
+    group: _SectionGroup.reasoning,
+    builder: () => const LogicalReasoningScreen(),
+  ),
+  _PracticeSection(
+    title: 'Quantitative Techniques',
+    subtitle: 'Basic-maths data',
+    meta: '10 questions',
+    icon: Icons.calculate_rounded,
+    colors: AppColors.gradTeal,
+    group: _SectionGroup.numeric,
+    builder: () => const QuantScreen(),
+  ),
+  _PracticeSection(
+    title: 'English & RC',
+    subtitle: 'Passage-based',
+    meta: '10 questions',
+    icon: Icons.menu_book_rounded,
+    colors: AppColors.gradCyan,
+    group: _SectionGroup.verbal,
+    builder: () => const EnglishScreen(),
+  ),
+  _PracticeSection(
+    title: 'Brain Gym',
+    subtitle: 'Drill your weak topics',
+    meta: '5-Q drills',
+    icon: Icons.fitness_center_rounded,
+    colors: AppColors.gradRose,
+    group: _SectionGroup.drills,
+    builder: () => const BrainGymScreen(),
+  ),
+];
+
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   late Future<DashboardStats> _statsFuture;
+  final TextEditingController _searchController = TextEditingController();
+  String _query = '';
+  _SectionGroup? _group; // null = "All"
+
+  static const List<NavItem> _navItems = [
+    NavItem(Icons.home_rounded, 'Home'),
+    NavItem(Icons.assignment_rounded, 'Mock Test'),
+    NavItem(Icons.fitness_center_rounded, 'Brain Gym'),
+    NavItem(Icons.settings_rounded, 'Settings'),
+  ];
 
   @override
   void initState() {
@@ -569,6 +413,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -586,283 +431,306 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     });
   }
 
+  void _push(Widget screen) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
+  }
+
+  Future<void> _openSprint() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const DailySprintLoadingScreen()),
+    );
+    if (mounted) _refresh();
+  }
+
+  void _onNavTap(int index) {
+    switch (index) {
+      case 1:
+        _push(const MockLoadingScreen());
+      case 2:
+        _push(const BrainGymScreen());
+      case 3:
+        _push(const SettingsScreen());
+    }
+  }
+
+  String _greeting() {
+    final h = DateTime.now().hour;
+    if (h < 12) return 'Good morning';
+    if (h < 17) return 'Good afternoon';
+    return 'Good evening';
+  }
+
+  List<_PracticeSection> get _visibleSections {
+    final q = _query.trim().toLowerCase();
+    return _practiceSections.where((s) {
+      final inGroup = _group == null || s.group == _group;
+      final matches = q.isEmpty ||
+          s.title.toLowerCase().contains(q) ||
+          s.subtitle.toLowerCase().contains(q);
+      return inGroup && matches;
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('CLAT Daily Sprint'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings_rounded),
-            tooltip: 'Settings',
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const SettingsScreen()),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.dark,
+      child: Scaffold(
+        extendBody: true,
+        bottomNavigationBar: FloatingNavBar(
+          items: _navItems,
+          selected: 0,
+          onTap: _onNavTap,
+        ),
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [AppColors.bgTop, AppColors.bg],
+              stops: [0.0, 0.5],
             ),
           ),
-        ],
+          child: SafeArea(
+            bottom: false,
+            child: FutureBuilder<DashboardStats>(
+              future: _statsFuture,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  );
+                }
+                return Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 600),
+                    child: _buildContent(snapshot.data!),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
       ),
-      body: FutureBuilder<DashboardStats>(
-        future: _statsFuture,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.primaryText),
-            );
-          }
-          final stats = snapshot.data!;
-          return SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: SingleChildScrollView(
-                child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+    );
+  }
+
+  Widget _buildContent(DashboardStats stats) {
+    final doneToday = stats.lastCompletedDate == StorageService._todayKey();
+    final sections = _visibleSections;
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(AppStyle.pagePadding, 14,
+          AppStyle.pagePadding, 120),
+      children: [
+        // ---- Header -------------------------------------------------------
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 4),
+                  Text(
+                    '${_greeting()},',
+                    style: const TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
                   const Text(
-                    'Ready for today\'s sprint?',
+                    'Ready to sprint?',
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 28,
                       fontWeight: FontWeight.w800,
                       color: AppColors.textPrimary,
-                      letterSpacing: -0.4,
+                      letterSpacing: -0.5,
                     ),
-                  ),
-                  const SizedBox(height: AppStyle.sectionGap),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _StreakCard(streak: stats.streak),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: _StatCard(
-                          icon: Icons.speed_rounded,
-                          iconColor: AppColors.primaryText,
-                          label: 'Avg. Speed',
-                          value: stats.averageWpm == 0
-                              ? '—'
-                              : stats.averageWpm.round().toString(),
-                          suffix: stats.averageWpm == 0 ? '' : ' WPM',
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  _WordsConqueredCard(totalWords: stats.totalWordsRead),
-                  const SizedBox(height: 14),
-                  _StatCard(
-                    icon: Icons.task_alt_rounded,
-                    iconColor: AppColors.successText,
-                    label: 'Sprints Completed',
-                    value: stats.sessionsCount.toString(),
-                    suffix: '',
-                    fullWidth: true,
-                  ),
-                  const SizedBox(height: AppStyle.sectionGap),
-
-                  // Hero CTA — Airbnb-style full-bleed banner card rather
-                  // than a plain button: icon badge, title, subtitle, and
-                  // the action together in one tappable surface.
-                  Material(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(AppStyle.radiusLg),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(AppStyle.radiusLg),
-                      onTap: () async {
-                        await Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const DailySprintLoadingScreen(),
-                          ),
-                        );
-                        _refresh();
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: AppColors.success.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(AppStyle.radiusLg),
-                          border: Border.all(
-                              color: AppColors.success.withOpacity(0.35)),
-                        ),
-                        child: Row(
-                          children: [
-                            const IconBadge(
-                              icon: Icons.bolt_rounded,
-                              color: AppColors.successText,
-                              size: 52,
-                            ),
-                            const SizedBox(width: 16),
-                            const Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text("Start Today's Sprint",
-                                      style: TextStyle(
-                                          color: AppColors.textPrimary,
-                                          fontSize: 16.5,
-                                          fontWeight: FontWeight.w800)),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    '1 passage · 5 questions · 5 flashcards',
-                                    style: TextStyle(
-                                        color: AppColors.textMuted,
-                                        fontSize: 12.5),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const Icon(Icons.chevron_right_rounded,
-                                color: AppColors.textMuted),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-
-                  // Full Mock Test — same banner idiom, indigo-tinted.
-                  Material(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(AppStyle.radiusLg),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(AppStyle.radiusLg),
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const MockLoadingScreen(),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(AppStyle.radiusLg),
-                          border: Border.all(
-                              color: AppColors.primary.withOpacity(0.35)),
-                        ),
-                        child: Row(
-                          children: [
-                            const IconBadge(
-                              icon: Icons.assignment_rounded,
-                              color: AppColors.primaryText,
-                              size: 52,
-                            ),
-                            const SizedBox(width: 16),
-                            const Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Full Mock Test',
-                                      style: TextStyle(
-                                          color: AppColors.textPrimary,
-                                          fontSize: 16.5,
-                                          fontWeight: FontWeight.w800)),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    'Half or full length · all 5 sections · negative marking',
-                                    style: TextStyle(
-                                        color: AppColors.textMuted,
-                                        fontSize: 12.5),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const Icon(Icons.chevron_right_rounded,
-                                color: AppColors.textMuted),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: AppStyle.sectionGap),
-                  const SectionHeader(
-                    title: 'Practice by section',
-                    subtitle: 'Fresh, Groq-generated questions every time',
-                  ),
-                  GridView.count(
-                    crossAxisCount: 2,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 0.92,
-                    children: [
-                      PracticeTile(
-                        icon: Icons.gavel_rounded,
-                        color: AppColors.primaryText,
-                        title: 'Legal Reasoning',
-                        subtitle: 'Principle + facts',
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const LegalReasoningScreen(),
-                          ),
-                        ),
-                      ),
-                      PracticeTile(
-                        icon: Icons.public_rounded,
-                        color: AppColors.warning,
-                        title: 'GK / Current Affairs',
-                        subtitle: 'Headline-grounded',
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const GkQuizScreen(),
-                          ),
-                        ),
-                      ),
-                      PracticeTile(
-                        icon: Icons.psychology_rounded,
-                        color: AppColors.dangerText,
-                        title: 'Logical Reasoning',
-                        subtitle: 'Argument-based',
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const LogicalReasoningScreen(),
-                          ),
-                        ),
-                      ),
-                      PracticeTile(
-                        icon: Icons.calculate_rounded,
-                        color: AppColors.successText,
-                        title: 'Quantitative Techniques',
-                        subtitle: 'Basic-maths data',
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const QuantScreen(),
-                          ),
-                        ),
-                      ),
-                      PracticeTile(
-                        icon: Icons.menu_book_rounded,
-                        color: AppColors.primaryText,
-                        title: 'English & RC',
-                        subtitle: 'Passage-based',
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const EnglishScreen(),
-                          ),
-                        ),
-                      ),
-                      PracticeTile(
-                        icon: Icons.fitness_center_rounded,
-                        color: AppColors.successText,
-                        title: 'Brain Gym',
-                        subtitle: 'Drill your weak topics',
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const BrainGymScreen(),
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
                 ],
-                ),
               ),
             ),
-          );
-        },
+            _StreakPill(streak: stats.streak),
+          ],
+        ),
+        const SizedBox(height: 22),
+
+        // ---- Today's sprint ----------------------------------------------
+        HeroBanner(
+          title: doneToday ? 'Sprint done for today' : "Today's Daily Sprint",
+          subtitle: doneToday
+              ? 'Nice work. Read another passage to keep your edge.'
+              : '$kDailySprintPassageCount passages with questions and '
+                  "flashcards, fresh from today's news.",
+          buttonLabel: doneToday ? 'Go again' : 'Start now',
+          icon: doneToday ? Icons.check_rounded : Icons.bolt_rounded,
+          colors: AppColors.gradBlue,
+          onTap: _openSprint,
+        ),
+        const SizedBox(height: 18),
+
+        // ---- Stats --------------------------------------------------------
+        Row(
+          children: [
+            Expanded(child: _StreakCard(streak: stats.streak)),
+            const SizedBox(width: 14),
+            Expanded(
+              child: _StatCard(
+                icon: Icons.speed_rounded,
+                iconColor: AppColors.primaryText,
+                label: 'Avg. Speed',
+                value: stats.averageWpm == 0
+                    ? '—'
+                    : stats.averageWpm.round().toString(),
+                suffix: stats.averageWpm == 0 ? '' : ' WPM',
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+        _WordsConqueredCard(totalWords: stats.totalWordsRead),
+        const SizedBox(height: 14),
+        _StatCard(
+          icon: Icons.task_alt_rounded,
+          iconColor: AppColors.successText,
+          label: 'Sprints Completed',
+          value: stats.sessionsCount.toString(),
+          suffix: '',
+          fullWidth: true,
+        ),
+        const SizedBox(height: AppStyle.sectionGap),
+
+        // ---- Mock test ----------------------------------------------------
+        HeroBanner(
+          title: 'Full Mock Test',
+          subtitle: 'Half or full length · all 5 sections · negative marking',
+          buttonLabel: 'Take a mock',
+          icon: Icons.assignment_rounded,
+          colors: AppColors.gradPurple,
+          onTap: () => _push(const MockLoadingScreen()),
+        ),
+        const SizedBox(height: AppStyle.sectionGap),
+
+        // ---- Practice by section ------------------------------------------
+        const SectionHeader(
+          title: 'Practice by section',
+          subtitle: 'Fresh, Groq-generated questions every time',
+        ),
+        AppSearchField(
+          controller: _searchController,
+          hint: 'Search sections',
+          onChanged: (v) => setState(() => _query = v),
+        ),
+        const SizedBox(height: 14),
+        SizedBox(
+          height: 48,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            clipBehavior: Clip.none,
+            children: [
+              for (final chip in <(_SectionGroup?, String, IconData)>[
+                (null, 'All', Icons.apps_rounded),
+                (_SectionGroup.verbal, 'Verbal', Icons.menu_book_rounded),
+                (_SectionGroup.reasoning, 'Reasoning', Icons.psychology_rounded),
+                (_SectionGroup.numeric, 'Quant', Icons.calculate_rounded),
+                (_SectionGroup.drills, 'Drills', Icons.fitness_center_rounded),
+              ])
+                Padding(
+                  padding: const EdgeInsets.only(right: 10, top: 2, bottom: 2),
+                  child: AppPill(
+                    label: chip.$2,
+                    icon: chip.$3,
+                    selected: _group == chip.$1,
+                    onTap: () => setState(() => _group = chip.$1),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 18),
+        if (sections.isEmpty)
+          Container(
+            padding: const EdgeInsets.all(24),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(AppStyle.radiusLg),
+            ),
+            child: Text(
+              _query.trim().isEmpty
+                  ? 'Nothing in this group yet.'
+                  : 'No sections match "${_query.trim()}".',
+              style: const TextStyle(color: AppColors.textMuted, fontSize: 14),
+            ),
+          )
+        else
+          SizedBox(
+            height: 240,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.none,
+              itemCount: sections.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 14),
+              itemBuilder: (context, i) {
+                final s = sections[i];
+                return SizedBox(
+                  width: 170,
+                  child: SectionCard(
+                    icon: s.icon,
+                    title: s.title,
+                    subtitle: s.subtitle,
+                    meta: s.meta,
+                    colors: s.colors,
+                    onTap: () => _push(s.builder()),
+                  ),
+                );
+              },
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// Flame + count pill shown top-right of the Home header.
+class _StreakPill extends StatelessWidget {
+  final int streak;
+  const _StreakPill({required this.streak});
+
+  @override
+  Widget build(BuildContext context) {
+    final active = streak > 0;
+    return Semantics(
+      label: '$streak day streak',
+      child: ExcludeSemantics(
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(12, 9, 16, 9),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(AppStyle.radiusPill),
+            boxShadow: AppStyle.softShadow,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.local_fire_department_rounded,
+                color: active ? AppColors.warning : AppColors.textFaint,
+                size: 22,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '$streak',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -1337,7 +1205,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                           onLongPress: () => _toggleStrike(i),
                           child: Material(
                             color: isSelected
-                                ? AppColors.primary.withOpacity(0.15)
+                                ? AppColors.primary.withValues(alpha: 0.09)
                                 : AppColors.surface,
                             borderRadius: BorderRadius.circular(AppStyle.radiusMd),
                             child: InkWell(

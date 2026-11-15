@@ -330,7 +330,7 @@ class _BrainGymScreenState extends State<BrainGymScreen> {
     final accuracyPct = (stat.accuracy * 100).round();
     final accuracyColor = stat.accuracy < 0.4
         ? AppColors.dangerText
-        : (stat.accuracy < 0.7 ? AppColors.warning : AppColors.successText);
+        : (stat.accuracy < 0.7 ? AppColors.warningText : AppColors.successText);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),

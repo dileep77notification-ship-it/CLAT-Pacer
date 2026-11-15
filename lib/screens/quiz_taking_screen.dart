@@ -154,7 +154,7 @@ class _QuizTakingScreenState extends State<QuizTakingScreen> {
                         padding: const EdgeInsets.only(bottom: 10),
                         child: Material(
                           color: isSelected
-                              ? AppColors.primary.withOpacity(0.15)
+                              ? AppColors.primary.withValues(alpha: 0.09)
                               : AppColors.surface,
                           borderRadius: BorderRadius.circular(AppStyle.radiusMd),
                           child: InkWell(

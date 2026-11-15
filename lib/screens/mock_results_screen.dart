@@ -45,11 +45,11 @@ class MockResultsScreen extends StatelessWidget {
             if (autoSubmitted)
               Container(
                 width: double.infinity,
-                color: AppColors.warning.withOpacity(0.12),
+                color: const Color(0xFFFFF0D6), // soft amber banner
                 padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                 child: const Text(
                   "Time's up — this attempt was submitted automatically.",
-                  style: TextStyle(color: AppColors.warning, fontSize: 12.5),
+                  style: TextStyle(color: AppColors.warningText, fontSize: 12.5),
                   textAlign: TextAlign.center,
                 ),
               ),

@@ -154,7 +154,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ],
                     const SizedBox(height: 32),
                     const Text(
-                      'Daily reminder',
+                      'Reminders',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
