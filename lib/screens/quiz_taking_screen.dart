@@ -111,8 +111,8 @@ class _QuizTakingScreenState extends State<QuizTakingScreen> {
             LinearProgressIndicator(
               value: (_currentIndex + 1) / total,
               minHeight: 3,
-              backgroundColor: AppColors.slate800,
-              color: AppColors.indigo500,
+              backgroundColor: AppColors.tint,
+              color: AppColors.primary,
             ),
             Expanded(
               child: SingleChildScrollView(
@@ -124,14 +124,14 @@ class _QuizTakingScreenState extends State<QuizTakingScreen> {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppColors.slate900,
+                          color: AppColors.surface,
                           borderRadius: BorderRadius.circular(AppStyle.radiusLg),
-                          border: Border.all(color: AppColors.slate800),
+                          border: Border.all(color: AppColors.tint),
                         ),
                         child: Text(
                           question.passage!,
                           style: const TextStyle(
-                              color: AppColors.slate300,
+                              color: AppColors.textBody,
                               fontSize: 13.5,
                               height: 1.5),
                         ),
@@ -144,7 +144,7 @@ class _QuizTakingScreenState extends State<QuizTakingScreen> {
                         fontSize: 16.5,
                         fontWeight: FontWeight.w700,
                         height: 1.45,
-                        color: AppColors.slate100,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -154,8 +154,8 @@ class _QuizTakingScreenState extends State<QuizTakingScreen> {
                         padding: const EdgeInsets.only(bottom: 10),
                         child: Material(
                           color: isSelected
-                              ? AppColors.indigo500.withOpacity(0.15)
-                              : AppColors.slate900,
+                              ? AppColors.primary.withOpacity(0.15)
+                              : AppColors.surface,
                           borderRadius: BorderRadius.circular(AppStyle.radiusMd),
                           child: InkWell(
                             borderRadius: BorderRadius.circular(AppStyle.radiusMd),
@@ -167,8 +167,8 @@ class _QuizTakingScreenState extends State<QuizTakingScreen> {
                                 borderRadius: BorderRadius.circular(AppStyle.radiusMd),
                                 border: Border.all(
                                   color: isSelected
-                                      ? AppColors.indigo500
-                                      : AppColors.slate800,
+                                      ? AppColors.primary
+                                      : AppColors.tint,
                                   width: isSelected ? 1.6 : 1,
                                 ),
                               ),
@@ -181,10 +181,10 @@ class _QuizTakingScreenState extends State<QuizTakingScreen> {
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       color: isSelected
-                                          ? AppColors.indigo500
-                                          : AppColors.slate800,
+                                          ? AppColors.primary
+                                          : AppColors.tint,
                                       border: Border.all(
-                                          color: AppColors.slate700,
+                                          color: AppColors.lineStrong,
                                           width: 1),
                                     ),
                                     child: Text(
@@ -194,7 +194,7 @@ class _QuizTakingScreenState extends State<QuizTakingScreen> {
                                         fontWeight: FontWeight.w700,
                                         color: isSelected
                                             ? Colors.white
-                                            : AppColors.slate400,
+                                            : AppColors.textMuted,
                                       ),
                                     ),
                                   ),
@@ -205,7 +205,7 @@ class _QuizTakingScreenState extends State<QuizTakingScreen> {
                                       style: const TextStyle(
                                         fontSize: 15.5,
                                         height: 1.4,
-                                        color: AppColors.slate200,
+                                        color: AppColors.textSoft,
                                       ),
                                     ),
                                   ),

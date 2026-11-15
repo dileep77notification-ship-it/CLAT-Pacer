@@ -42,7 +42,7 @@ class QuizResultsScreen extends StatelessWidget {
                     children: [
                       const IconBadge(
                         icon: Icons.emoji_events_rounded,
-                        color: AppColors.indigo400,
+                        color: AppColors.primaryText,
                         size: 48,
                       ),
                       const SizedBox(width: 16),
@@ -54,7 +54,7 @@ class QuizResultsScreen extends StatelessWidget {
                               style: const TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.w800,
-                                color: AppColors.slate100,
+                                color: AppColors.textPrimary,
                               ),
                             ),
                             TextSpan(
@@ -62,7 +62,7 @@ class QuizResultsScreen extends StatelessWidget {
                               style: const TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.slate400,
+                                color: AppColors.textMuted,
                               ),
                             ),
                           ],
@@ -95,15 +95,15 @@ class QuizResultsScreen extends StatelessWidget {
                                     ? Icons.check_circle_rounded
                                     : Icons.cancel_rounded,
                                 color: isCorrect
-                                    ? AppColors.emerald400
-                                    : AppColors.rose400,
+                                    ? AppColors.successText
+                                    : AppColors.dangerText,
                                 size: 18,
                               ),
                               const SizedBox(width: 8),
                               Text(
                                 'Question ${i + 1}',
                                 style: const TextStyle(
-                                  color: AppColors.slate400,
+                                  color: AppColors.textMuted,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -119,7 +119,7 @@ class QuizResultsScreen extends StatelessWidget {
                                 tilePadding: EdgeInsets.zero,
                                 title: const Text('View passage',
                                     style: TextStyle(
-                                        color: AppColors.indigo400,
+                                        color: AppColors.primaryText,
                                         fontSize: 12.5)),
                                 children: [
                                   Padding(
@@ -127,7 +127,7 @@ class QuizResultsScreen extends StatelessWidget {
                                     child: Text(
                                       q.passage!,
                                       style: const TextStyle(
-                                          color: AppColors.slate400,
+                                          color: AppColors.textMuted,
                                           fontSize: 12.5,
                                           height: 1.4),
                                     ),
@@ -140,7 +140,7 @@ class QuizResultsScreen extends StatelessWidget {
                           Text(
                             q.prompt,
                             style: const TextStyle(
-                              color: AppColors.slate100,
+                              color: AppColors.textPrimary,
                               fontSize: 14.5,
                               fontWeight: FontWeight.w600,
                               height: 1.4,
@@ -151,8 +151,8 @@ class QuizResultsScreen extends StatelessWidget {
                             'Your answer: ${userAnswer == null ? '—' : q.options[userAnswer]}',
                             style: TextStyle(
                               color: isCorrect
-                                  ? AppColors.emerald400
-                                  : AppColors.rose400,
+                                  ? AppColors.successText
+                                  : AppColors.dangerText,
                               fontSize: 13.5,
                             ),
                           ),
@@ -161,7 +161,7 @@ class QuizResultsScreen extends StatelessWidget {
                             Text(
                               'Correct answer: ${q.options[q.correctIndex]}',
                               style: const TextStyle(
-                                  color: AppColors.emerald400,
+                                  color: AppColors.successText,
                                   fontSize: 13.5),
                             ),
                           ],
@@ -170,7 +170,7 @@ class QuizResultsScreen extends StatelessWidget {
                             Text(
                               q.explanation,
                               style: const TextStyle(
-                                color: AppColors.slate400,
+                                color: AppColors.textMuted,
                                 fontSize: 13,
                                 height: 1.4,
                               ),

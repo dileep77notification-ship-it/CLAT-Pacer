@@ -40,34 +40,34 @@ Future<void> main() async {
 
 class AppColors {
   // Slate scale (backgrounds / surfaces / text)
-  static const slate950 = Color(0xFF0B1120);
-  static const slate900 = Color(0xFF0F172A);
-  static const slate800 = Color(0xFF1E293B);
-  static const slate700 = Color(0xFF334155);
-  static const slate600 = Color(0xFF475569);
-  static const slate400 = Color(0xFF94A3B8);
-  static const slate300 = Color(0xFFCBD5E1);
-  static const slate100 = Color(0xFFF1F5F9);
+  static const bg = Color(0xFF0B1120);
+  static const surface = Color(0xFF0F172A);
+  static const tint = Color(0xFF1E293B);
+  static const lineStrong = Color(0xFF334155);
+  static const textFaint = Color(0xFF475569);
+  static const textMuted = Color(0xFF94A3B8);
+  static const textBody = Color(0xFFCBD5E1);
+  static const textPrimary = Color(0xFFF1F5F9);
 
   // Indigo scale (primary actions / accents)
-  static const indigo500 = Color(0xFF6366F1);
-  static const indigo400 = Color(0xFF818CF8);
-  static const indigo600 = Color(0xFF4F46E5);
+  static const primary = Color(0xFF6366F1);
+  static const primaryText = Color(0xFF818CF8);
+  static const primaryDark = Color(0xFF4F46E5);
 
   // Emerald scale (success / correct / streak flame)
-  static const emerald500 = Color(0xFF10B981);
-  static const emerald400 = Color(0xFF34D399);
+  static const success = Color(0xFF10B981);
+  static const successText = Color(0xFF34D399);
 
   // Rose (incorrect / destructive / strike)
-  static const rose500 = Color(0xFFF43F5E);
-  static const rose400 = Color(0xFFFB7185);
+  static const danger = Color(0xFFF43F5E);
+  static const dangerText = Color(0xFFFB7185);
 
   // Slightly lighter slate for unselected option text (kept distinct from
-  // slate100 so selected vs. unselected options read differently at a glance)
-  static const slate200 = Color(0xFFE2E8F0);
+  // textPrimary so selected vs. unselected options read differently at a glance)
+  static const textSoft = Color(0xFFE2E8F0);
 
   // Amber (timer warning)
-  static const amber400 = Color(0xFFFBBF24);
+  static const warning = Color(0xFFFBBF24);
 }
 
 // ============================================================================
@@ -114,7 +114,7 @@ class SectionHeader extends StatelessWidget {
             style: const TextStyle(
               fontSize: 21,
               fontWeight: FontWeight.w800,
-              color: AppColors.slate100,
+              color: AppColors.textPrimary,
               letterSpacing: -0.3,
             ),
           ),
@@ -123,7 +123,7 @@ class SectionHeader extends StatelessWidget {
             Text(
               subtitle!,
               style: const TextStyle(
-                  color: AppColors.slate400, fontSize: 13.5, height: 1.4),
+                  color: AppColors.textMuted, fontSize: 13.5, height: 1.4),
             ),
           ],
         ],
@@ -191,9 +191,9 @@ class PracticeTile extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.slate900,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(AppStyle.radiusLg),
-            border: Border.all(color: AppColors.slate800),
+            border: Border.all(color: AppColors.tint),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,14 +205,14 @@ class PracticeTile extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 14.5,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.slate100,
+                  color: AppColors.textPrimary,
                   height: 1.25,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 subtitle,
-                style: const TextStyle(color: AppColors.slate400, fontSize: 12),
+                style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
               ),
             ],
           ),
@@ -225,33 +225,33 @@ class PracticeTile extends StatelessWidget {
 ThemeData buildAppTheme() {
   final base = ThemeData.dark(useMaterial3: true);
   return base.copyWith(
-    scaffoldBackgroundColor: AppColors.slate950,
-    primaryColor: AppColors.indigo500,
+    scaffoldBackgroundColor: AppColors.bg,
+    primaryColor: AppColors.primary,
     colorScheme: base.colorScheme.copyWith(
-      primary: AppColors.indigo500,
-      secondary: AppColors.emerald500,
-      surface: AppColors.slate900,
-      error: AppColors.rose500,
+      primary: AppColors.primary,
+      secondary: AppColors.success,
+      surface: AppColors.surface,
+      error: AppColors.danger,
     ),
     textTheme: base.textTheme.apply(
       fontFamily: 'Roboto',
-      bodyColor: AppColors.slate100,
-      displayColor: AppColors.slate100,
+      bodyColor: AppColors.textPrimary,
+      displayColor: AppColors.textPrimary,
     ),
     appBarTheme: const AppBarTheme(
-      backgroundColor: AppColors.slate950,
+      backgroundColor: AppColors.bg,
       elevation: 0,
       centerTitle: false,
-      iconTheme: IconThemeData(color: AppColors.slate100),
+      iconTheme: IconThemeData(color: AppColors.textPrimary),
       titleTextStyle: TextStyle(
-        color: AppColors.slate100,
+        color: AppColors.textPrimary,
         fontSize: 20,
         fontWeight: FontWeight.w700,
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.indigo500,
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
         shape: RoundedRectangleBorder(
@@ -263,8 +263,8 @@ ThemeData buildAppTheme() {
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.slate100,
-        side: const BorderSide(color: AppColors.slate700),
+        foregroundColor: AppColors.textPrimary,
+        side: const BorderSide(color: AppColors.lineStrong),
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppStyle.radiusMd),
@@ -273,15 +273,15 @@ ThemeData buildAppTheme() {
       ),
     ),
     cardTheme: CardThemeData(
-      color: AppColors.slate900,
+      color: AppColors.surface,
       elevation: 0,
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppStyle.radiusLg),
-        side: const BorderSide(color: AppColors.slate800, width: 1),
+        side: const BorderSide(color: AppColors.tint, width: 1),
       ),
     ),
-    dividerColor: AppColors.slate800,
+    dividerColor: AppColors.tint,
   );
 }
 
@@ -606,7 +606,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(
-              child: CircularProgressIndicator(color: AppColors.indigo400),
+              child: CircularProgressIndicator(color: AppColors.primaryText),
             );
           }
           final stats = snapshot.data!;
@@ -623,7 +623,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w800,
-                      color: AppColors.slate100,
+                      color: AppColors.textPrimary,
                       letterSpacing: -0.4,
                     ),
                   ),
@@ -637,7 +637,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       Expanded(
                         child: _StatCard(
                           icon: Icons.speed_rounded,
-                          iconColor: AppColors.indigo400,
+                          iconColor: AppColors.primaryText,
                           label: 'Avg. Speed',
                           value: stats.averageWpm == 0
                               ? '—'
@@ -652,7 +652,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   const SizedBox(height: 14),
                   _StatCard(
                     icon: Icons.task_alt_rounded,
-                    iconColor: AppColors.emerald400,
+                    iconColor: AppColors.successText,
                     label: 'Sprints Completed',
                     value: stats.sessionsCount.toString(),
                     suffix: '',
@@ -679,16 +679,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       child: Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: AppColors.emerald500.withOpacity(0.12),
+                          color: AppColors.success.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(AppStyle.radiusLg),
                           border: Border.all(
-                              color: AppColors.emerald500.withOpacity(0.35)),
+                              color: AppColors.success.withOpacity(0.35)),
                         ),
                         child: Row(
                           children: [
                             const IconBadge(
                               icon: Icons.bolt_rounded,
-                              color: AppColors.emerald400,
+                              color: AppColors.successText,
                               size: 52,
                             ),
                             const SizedBox(width: 16),
@@ -698,21 +698,21 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                 children: [
                                   Text("Start Today's Sprint",
                                       style: TextStyle(
-                                          color: AppColors.slate100,
+                                          color: AppColors.textPrimary,
                                           fontSize: 16.5,
                                           fontWeight: FontWeight.w800)),
                                   SizedBox(height: 4),
                                   Text(
                                     '1 passage · 5 questions · 5 flashcards',
                                     style: TextStyle(
-                                        color: AppColors.slate400,
+                                        color: AppColors.textMuted,
                                         fontSize: 12.5),
                                   ),
                                 ],
                               ),
                             ),
                             const Icon(Icons.chevron_right_rounded,
-                                color: AppColors.slate400),
+                                color: AppColors.textMuted),
                           ],
                         ),
                       ),
@@ -736,16 +736,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       child: Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: AppColors.indigo500.withOpacity(0.12),
+                          color: AppColors.primary.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(AppStyle.radiusLg),
                           border: Border.all(
-                              color: AppColors.indigo500.withOpacity(0.35)),
+                              color: AppColors.primary.withOpacity(0.35)),
                         ),
                         child: Row(
                           children: [
                             const IconBadge(
                               icon: Icons.assignment_rounded,
-                              color: AppColors.indigo400,
+                              color: AppColors.primaryText,
                               size: 52,
                             ),
                             const SizedBox(width: 16),
@@ -755,21 +755,21 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                 children: [
                                   Text('Full Mock Test',
                                       style: TextStyle(
-                                          color: AppColors.slate100,
+                                          color: AppColors.textPrimary,
                                           fontSize: 16.5,
                                           fontWeight: FontWeight.w800)),
                                   SizedBox(height: 4),
                                   Text(
                                     'Half or full length · all 5 sections · negative marking',
                                     style: TextStyle(
-                                        color: AppColors.slate400,
+                                        color: AppColors.textMuted,
                                         fontSize: 12.5),
                                   ),
                                 ],
                               ),
                             ),
                             const Icon(Icons.chevron_right_rounded,
-                                color: AppColors.slate400),
+                                color: AppColors.textMuted),
                           ],
                         ),
                       ),
@@ -791,7 +791,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     children: [
                       PracticeTile(
                         icon: Icons.gavel_rounded,
-                        color: AppColors.indigo400,
+                        color: AppColors.primaryText,
                         title: 'Legal Reasoning',
                         subtitle: 'Principle + facts',
                         onTap: () => Navigator.of(context).push(
@@ -802,7 +802,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       ),
                       PracticeTile(
                         icon: Icons.public_rounded,
-                        color: AppColors.amber400,
+                        color: AppColors.warning,
                         title: 'GK / Current Affairs',
                         subtitle: 'Headline-grounded',
                         onTap: () => Navigator.of(context).push(
@@ -813,7 +813,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       ),
                       PracticeTile(
                         icon: Icons.psychology_rounded,
-                        color: AppColors.rose400,
+                        color: AppColors.dangerText,
                         title: 'Logical Reasoning',
                         subtitle: 'Argument-based',
                         onTap: () => Navigator.of(context).push(
@@ -824,7 +824,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       ),
                       PracticeTile(
                         icon: Icons.calculate_rounded,
-                        color: AppColors.emerald400,
+                        color: AppColors.successText,
                         title: 'Quantitative Techniques',
                         subtitle: 'Basic-maths data',
                         onTap: () => Navigator.of(context).push(
@@ -835,7 +835,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       ),
                       PracticeTile(
                         icon: Icons.menu_book_rounded,
-                        color: AppColors.indigo400,
+                        color: AppColors.primaryText,
                         title: 'English & RC',
                         subtitle: 'Passage-based',
                         onTap: () => Navigator.of(context).push(
@@ -846,7 +846,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       ),
                       PracticeTile(
                         icon: Icons.fitness_center_rounded,
-                        color: AppColors.emerald400,
+                        color: AppColors.successText,
                         title: 'Brain Gym',
                         subtitle: 'Drill your weak topics',
                         onTap: () => Navigator.of(context).push(
@@ -883,7 +883,7 @@ class _StreakCard extends StatelessWidget {
           children: [
             Icon(
               Icons.local_fire_department_rounded,
-              color: isActive ? AppColors.amber400 : AppColors.slate600,
+              color: isActive ? AppColors.warning : AppColors.textFaint,
               size: 28,
             ),
             const SizedBox(height: 10),
@@ -892,13 +892,13 @@ class _StreakCard extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.w800,
-                color: AppColors.slate100,
+                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 2),
             Text(
               streak == 1 ? 'day streak' : 'day streak',
-              style: const TextStyle(color: AppColors.slate400, fontSize: 13),
+              style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
             ),
           ],
         ),
@@ -939,14 +939,14 @@ class _StatCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
-                      color: AppColors.slate100,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   const SizedBox(width: 8),
                   Text(
                     label,
                     style: const TextStyle(
-                        color: AppColors.slate400, fontSize: 13),
+                        color: AppColors.textMuted, fontSize: 13),
                   ),
                 ],
               )
@@ -963,7 +963,7 @@ class _StatCard extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 26,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.slate100,
+                            color: AppColors.textPrimary,
                           ),
                         ),
                         TextSpan(
@@ -971,7 +971,7 @@ class _StatCard extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.slate400,
+                            color: AppColors.textMuted,
                           ),
                         ),
                       ],
@@ -981,7 +981,7 @@ class _StatCard extends StatelessWidget {
                   Text(
                     label,
                     style: const TextStyle(
-                        color: AppColors.slate400, fontSize: 13),
+                        color: AppColors.textMuted, fontSize: 13),
                   ),
                 ],
               ),
@@ -1005,7 +1005,7 @@ class _WordsConqueredCard extends StatelessWidget {
         child: Row(
           children: [
             const Icon(Icons.menu_book_rounded,
-                color: AppColors.emerald400, size: 26),
+                color: AppColors.successText, size: 26),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
@@ -1013,7 +1013,7 @@ class _WordsConqueredCard extends StatelessWidget {
                 children: [
                   const Text(
                     'Words Conquered',
-                    style: TextStyle(color: AppColors.slate400, fontSize: 13),
+                    style: TextStyle(color: AppColors.textMuted, fontSize: 13),
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -1023,10 +1023,10 @@ class _WordsConqueredCard extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 7, vertical: 4),
                               decoration: BoxDecoration(
-                                color: AppColors.slate800,
+                                color: AppColors.tint,
                                 borderRadius: BorderRadius.circular(6),
                                 border: Border.all(
-                                    color: AppColors.slate700, width: 1),
+                                    color: AppColors.lineStrong, width: 1),
                               ),
                               child: Text(
                                 d,
@@ -1034,7 +1034,7 @@ class _WordsConqueredCard extends StatelessWidget {
                                   fontFamily: 'monospace',
                                   fontSize: 18,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.emerald400,
+                                  color: AppColors.successText,
                                 ),
                               ),
                             ))
@@ -1136,7 +1136,7 @@ class _PassagePacerScreenState extends State<PassagePacerScreen> {
             children: [
               Icon(Icons.timer_rounded,
                   size: 20,
-                  color: isWarning ? AppColors.rose400 : AppColors.indigo400),
+                  color: isWarning ? AppColors.dangerText : AppColors.primaryText),
               const SizedBox(width: 8),
               Text(
                 _formatTime(_secondsRemaining),
@@ -1144,7 +1144,7 @@ class _PassagePacerScreenState extends State<PassagePacerScreen> {
                   fontFamily: 'monospace',
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
-                  color: isWarning ? AppColors.rose400 : AppColors.slate100,
+                  color: isWarning ? AppColors.dangerText : AppColors.textPrimary,
                 ),
               ),
             ],
@@ -1156,8 +1156,8 @@ class _PassagePacerScreenState extends State<PassagePacerScreen> {
               LinearProgressIndicator(
                 value: _secondsRemaining / _totalSeconds,
                 minHeight: 3,
-                backgroundColor: AppColors.slate800,
-                color: isWarning ? AppColors.rose500 : AppColors.indigo500,
+                backgroundColor: AppColors.tint,
+                color: isWarning ? AppColors.danger : AppColors.primary,
               ),
               Expanded(
                 child: SingleChildScrollView(
@@ -1170,14 +1170,14 @@ class _PassagePacerScreenState extends State<PassagePacerScreen> {
                         style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.slate100,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         '${widget.passage.wordCount} words',
                         style: const TextStyle(
-                            color: AppColors.slate600, fontSize: 12),
+                            color: AppColors.textFaint, fontSize: 12),
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -1185,7 +1185,7 @@ class _PassagePacerScreenState extends State<PassagePacerScreen> {
                         style: const TextStyle(
                           fontSize: 16.5,
                           height: 1.6,
-                          color: AppColors.slate300,
+                          color: AppColors.textBody,
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -1201,7 +1201,7 @@ class _PassagePacerScreenState extends State<PassagePacerScreen> {
                     icon: const Icon(Icons.check_circle_rounded),
                     label: const Text('Done Reading'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.emerald500,
+                      backgroundColor: AppColors.success,
                     ),
                     onPressed: () => _finishReading(),
                   ),
@@ -1309,8 +1309,8 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
             LinearProgressIndicator(
               value: (_currentIndex + 1) / total,
               minHeight: 3,
-              backgroundColor: AppColors.slate800,
-              color: AppColors.indigo500,
+              backgroundColor: AppColors.tint,
+              color: AppColors.primary,
             ),
             Expanded(
               child: SingleChildScrollView(
@@ -1324,7 +1324,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                         height: 1.4,
-                        color: AppColors.slate100,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -1337,8 +1337,8 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                           onLongPress: () => _toggleStrike(i),
                           child: Material(
                             color: isSelected
-                                ? AppColors.indigo500.withOpacity(0.15)
-                                : AppColors.slate900,
+                                ? AppColors.primary.withOpacity(0.15)
+                                : AppColors.surface,
                             borderRadius: BorderRadius.circular(AppStyle.radiusMd),
                             child: InkWell(
                               borderRadius: BorderRadius.circular(AppStyle.radiusMd),
@@ -1350,8 +1350,8 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                   borderRadius: BorderRadius.circular(AppStyle.radiusMd),
                                   border: Border.all(
                                     color: isSelected
-                                        ? AppColors.indigo500
-                                        : AppColors.slate800,
+                                        ? AppColors.primary
+                                        : AppColors.tint,
                                     width: isSelected ? 1.6 : 1,
                                   ),
                                 ),
@@ -1369,13 +1369,13 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                           fontSize: 15.5,
                                           height: 1.4,
                                           color: isStruck
-                                              ? AppColors.slate600
-                                              : AppColors.slate200,
+                                              ? AppColors.textFaint
+                                              : AppColors.textSoft,
                                           decoration: isStruck
                                               ? TextDecoration.lineThrough
                                               : TextDecoration.none,
                                           decorationThickness: 2,
-                                          decorationColor: AppColors.rose400,
+                                          decorationColor: AppColors.dangerText,
                                         ),
                                       ),
                                     ),
@@ -1390,8 +1390,8 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                                 .format_strikethrough_rounded,
                                         size: 20,
                                         color: isStruck
-                                            ? AppColors.emerald400
-                                            : AppColors.slate600,
+                                            ? AppColors.successText
+                                            : AppColors.textFaint,
                                       ),
                                       onPressed: () => _toggleStrike(i),
                                     ),
@@ -1406,7 +1406,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                     const SizedBox(height: 4),
                     const Text(
                       'Tip: long-press or tap the strike icon to eliminate an option.',
-                      style: TextStyle(color: AppColors.slate600, fontSize: 12),
+                      style: TextStyle(color: AppColors.textFaint, fontSize: 12),
                     ),
                   ],
                 ),
@@ -1422,7 +1422,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                         onPressed: _goPrev,
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
-                          side: const BorderSide(color: AppColors.slate700),
+                          side: const BorderSide(color: AppColors.lineStrong),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -1463,9 +1463,9 @@ class _OptionBullet extends StatelessWidget {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: selected ? AppColors.indigo500 : AppColors.slate800,
+        color: selected ? AppColors.primary : AppColors.tint,
         border: Border.all(
-          color: struck ? AppColors.rose400 : AppColors.slate700,
+          color: struck ? AppColors.dangerText : AppColors.lineStrong,
           width: 1,
         ),
       ),
@@ -1474,7 +1474,7 @@ class _OptionBullet extends StatelessWidget {
         style: TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w700,
-          color: selected ? Colors.white : AppColors.slate400,
+          color: selected ? Colors.white : AppColors.textMuted,
         ),
       ),
     );
@@ -1514,7 +1514,7 @@ class ResultsScreen extends StatelessWidget {
                   Expanded(
                     child: _ResultTile(
                       icon: Icons.speed_rounded,
-                      color: AppColors.indigo400,
+                      color: AppColors.primaryText,
                       label: 'Reading Speed',
                       value: '$wpm',
                       suffix: ' WPM',
@@ -1524,7 +1524,7 @@ class ResultsScreen extends StatelessWidget {
                   Expanded(
                     child: _ResultTile(
                       icon: Icons.fact_check_rounded,
-                      color: AppColors.emerald400,
+                      color: AppColors.successText,
                       label: 'Accuracy',
                       value: '$score',
                       suffix: '/$total',
@@ -1538,13 +1538,13 @@ class ResultsScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.slate100,
+                  color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 6),
               const Text(
                 '5 connected facts to lock this passage into memory.',
-                style: TextStyle(color: AppColors.slate400, fontSize: 13),
+                style: TextStyle(color: AppColors.textMuted, fontSize: 13),
               ),
               const Spacer(),
               SizedBox(
@@ -1606,7 +1606,7 @@ class _ResultTile extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w800,
-                      color: AppColors.slate100,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   TextSpan(
@@ -1614,7 +1614,7 @@ class _ResultTile extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.slate400,
+                      color: AppColors.textMuted,
                     ),
                   ),
                 ],
@@ -1623,7 +1623,7 @@ class _ResultTile extends StatelessWidget {
             const SizedBox(height: 2),
             Text(label,
                 style:
-                    const TextStyle(color: AppColors.slate400, fontSize: 13)),
+                    const TextStyle(color: AppColors.textMuted, fontSize: 13)),
           ],
         ),
       ),
@@ -1710,8 +1710,8 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> {
                   height: 6,
                   decoration: BoxDecoration(
                     color: i == _index
-                        ? AppColors.indigo400
-                        : AppColors.slate700,
+                        ? AppColors.primaryText
+                        : AppColors.lineStrong,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -1728,7 +1728,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> {
                   label: Text(isLast ? 'Finish Sprint' : 'Swipe to continue'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor:
-                        isLast ? AppColors.emerald500 : AppColors.indigo500,
+                        isLast ? AppColors.success : AppColors.primary,
                   ),
                   onPressed: isLast
                       ? (_saving ? null : _finish)
@@ -1752,11 +1752,11 @@ class _FlashcardTile extends StatelessWidget {
   const _FlashcardTile({required this.card, required this.index});
 
   static const _accents = [
-    AppColors.indigo500,
-    AppColors.emerald500,
-    AppColors.amber400,
-    AppColors.rose500,
-    AppColors.indigo400,
+    AppColors.primary,
+    AppColors.success,
+    AppColors.warning,
+    AppColors.danger,
+    AppColors.primaryText,
   ];
 
   @override
@@ -1765,9 +1765,9 @@ class _FlashcardTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(26),
       decoration: BoxDecoration(
-        color: AppColors.slate900,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppStyle.radiusLg),
-        border: Border.all(color: AppColors.slate800, width: 1),
+        border: Border.all(color: AppColors.tint, width: 1),
         boxShadow: [
           BoxShadow(
             color: accent.withOpacity(0.08),
@@ -1786,7 +1786,7 @@ class _FlashcardTile extends StatelessWidget {
             style: const TextStyle(
               fontSize: 19,
               fontWeight: FontWeight.w800,
-              color: AppColors.slate100,
+              color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 12),
@@ -1797,7 +1797,7 @@ class _FlashcardTile extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 15.5,
                   height: 1.55,
-                  color: AppColors.slate300,
+                  color: AppColors.textBody,
                 ),
               ),
             ),

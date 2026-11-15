@@ -72,7 +72,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: _loading
           ? const Center(
               child:
-                  CircularProgressIndicator(color: AppColors.indigo400))
+                  CircularProgressIndicator(color: AppColors.primaryText))
           : SafeArea(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
@@ -84,7 +84,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.slate100,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -93,23 +93,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ? 'A key is stored, encrypted on this device.'
                           : 'No key stored yet — the Legal Reasoning Test needs one.',
                       style: const TextStyle(
-                          color: AppColors.slate400, fontSize: 13),
+                          color: AppColors.textMuted, fontSize: 13),
                     ),
                     const SizedBox(height: 16),
                     TextField(
                       controller: _controller,
                       obscureText: true,
-                      style: const TextStyle(color: AppColors.slate100),
+                      style: const TextStyle(color: AppColors.textPrimary),
                       decoration: InputDecoration(
                         hintText: 'Paste your Groq API key',
                         hintStyle:
-                            const TextStyle(color: AppColors.slate600),
+                            const TextStyle(color: AppColors.textFaint),
                         filled: true,
-                        fillColor: AppColors.slate900,
+                        fillColor: AppColors.surface,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(AppStyle.radiusMd),
                           borderSide:
-                              const BorderSide(color: AppColors.slate800),
+                              const BorderSide(color: AppColors.tint),
                         ),
                       ),
                     ),
@@ -133,7 +133,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               onPressed: _hasKey ? _clear : null,
                               style: OutlinedButton.styleFrom(
                                 side: const BorderSide(
-                                    color: AppColors.slate700),
+                                    color: AppColors.lineStrong),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(AppStyle.radiusMd),
                                 ),
@@ -149,7 +149,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Text(
                         _message!,
                         style: const TextStyle(
-                            color: AppColors.emerald400, fontSize: 13),
+                            color: AppColors.successText, fontSize: 13),
                       ),
                     ],
                     const SizedBox(height: 32),
@@ -158,14 +158,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.slate100,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 6),
                     const Text(
                       'Get a nudge each day to finish your Daily Sprint and keep your streak.',
                       style:
-                          TextStyle(color: AppColors.slate400, fontSize: 13),
+                          TextStyle(color: AppColors.textMuted, fontSize: 13),
                     ),
                     const SizedBox(height: 8),
                     const ReminderSettingsTile(),

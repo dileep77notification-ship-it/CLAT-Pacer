@@ -110,7 +110,7 @@ class _QuantScreenState extends State<QuantScreen> {
     switch (_status) {
       case _Status.checking:
         return const Center(
-          child: CircularProgressIndicator(color: AppColors.indigo400),
+          child: CircularProgressIndicator(color: AppColors.primaryText),
         );
 
       case _Status.noKey:
@@ -119,12 +119,12 @@ class _QuantScreenState extends State<QuantScreen> {
           children: [
             const SizedBox(height: 40),
             const Icon(Icons.key_off_rounded,
-                color: AppColors.slate600, size: 48),
+                color: AppColors.textFaint, size: 48),
             const SizedBox(height: 16),
             const Text(
               'Add your Groq API key in Settings before starting a Quantitative Techniques practice set.',
               style: TextStyle(
-                  color: AppColors.slate300, fontSize: 15, height: 1.4),
+                  color: AppColors.textBody, fontSize: 15, height: 1.4),
             ),
             const SizedBox(height: 20),
             SizedBox(
@@ -149,13 +149,13 @@ class _QuantScreenState extends State<QuantScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const CircularProgressIndicator(color: AppColors.indigo400),
+              const CircularProgressIndicator(color: AppColors.primaryText),
               const SizedBox(height: 16),
               Text(
                 _progressGenerated == 0
                     ? 'Generating $_progressTotal fresh questions…'
                     : 'Generated $_progressGenerated of $_progressTotal…',
-                style: const TextStyle(color: AppColors.slate400),
+                style: const TextStyle(color: AppColors.textMuted),
               ),
             ],
           ),
@@ -167,12 +167,12 @@ class _QuantScreenState extends State<QuantScreen> {
           children: [
             const SizedBox(height: 40),
             const Icon(Icons.error_outline_rounded,
-                color: AppColors.rose400, size: 48),
+                color: AppColors.dangerText, size: 48),
             const SizedBox(height: 16),
             Text(
               "Couldn't generate questions — ${_error ?? 'unknown error'}",
               style: const TextStyle(
-                  color: AppColors.slate300, fontSize: 15, height: 1.4),
+                  color: AppColors.textBody, fontSize: 15, height: 1.4),
             ),
             const SizedBox(height: 20),
             SizedBox(
@@ -190,7 +190,7 @@ class _QuantScreenState extends State<QuantScreen> {
             Center(
               child: IconBadge(
                 icon: Icons.calculate_rounded,
-                color: AppColors.emerald400,
+                color: AppColors.successText,
                 size: 64,
               ),
             ),
@@ -198,7 +198,7 @@ class _QuantScreenState extends State<QuantScreen> {
             const Text(
               '10 freshly generated data-driven questions — percentages, ratios, averages, and basic data interpretation — in the CLAT pattern.',
               style: TextStyle(
-                  color: AppColors.slate300, fontSize: 15, height: 1.4),
+                  color: AppColors.textBody, fontSize: 15, height: 1.4),
             ),
             const SizedBox(height: 20),
             SizedBox(

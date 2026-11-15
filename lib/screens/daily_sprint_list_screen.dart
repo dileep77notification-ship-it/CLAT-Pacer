@@ -52,7 +52,7 @@ class _DailySprintListScreenState extends State<DailySprintListScreen> {
             Text(
               '${passages.length} stor${passages.length == 1 ? 'y' : 'ies'} picked for today, '
               'most CLAT-relevant first.',
-              style: const TextStyle(color: AppColors.slate400, fontSize: 14),
+              style: const TextStyle(color: AppColors.textMuted, fontSize: 14),
             ),
             const SizedBox(height: 20),
             for (var i = 0; i < passages.length; i++) ...[
@@ -87,7 +87,7 @@ class _PassageCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.slate900,
+      color: AppColors.surface,
       borderRadius: BorderRadius.circular(AppStyle.radiusMd),
       child: InkWell(
         borderRadius: BorderRadius.circular(AppStyle.radiusMd),
@@ -97,7 +97,7 @@ class _PassageCard extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppStyle.radiusMd),
             border: Border.all(
-              color: visited ? AppColors.emerald500.withOpacity(0.35) : AppColors.slate800,
+              color: visited ? AppColors.success.withOpacity(0.35) : AppColors.tint,
             ),
           ),
           child: Row(
@@ -109,17 +109,17 @@ class _PassageCard extends StatelessWidget {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: visited
-                      ? AppColors.emerald500.withOpacity(0.15)
-                      : AppColors.indigo500.withOpacity(0.15),
+                      ? AppColors.success.withOpacity(0.15)
+                      : AppColors.primary.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(AppStyle.radiusSm),
                 ),
                 child: visited
                     ? const Icon(Icons.check_rounded,
-                        color: AppColors.emerald400, size: 18)
+                        color: AppColors.successText, size: 18)
                     : Text(
                         '${index + 1}',
                         style: const TextStyle(
-                          color: AppColors.indigo400,
+                          color: AppColors.primaryText,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -132,7 +132,7 @@ class _PassageCard extends StatelessWidget {
                     Text(
                       passage.title,
                       style: const TextStyle(
-                        color: AppColors.slate100,
+                        color: AppColors.textPrimary,
                         fontWeight: FontWeight.w700,
                         fontSize: 15,
                         height: 1.3,
@@ -142,14 +142,14 @@ class _PassageCard extends StatelessWidget {
                     Text(
                       '${passage.wordCount} words · ${passage.questions.length} questions',
                       style: const TextStyle(
-                        color: AppColors.slate400,
+                        color: AppColors.textMuted,
                         fontSize: 13,
                       ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right_rounded, color: AppColors.slate600),
+              const Icon(Icons.chevron_right_rounded, color: AppColors.textFaint),
             ],
           ),
         ),

@@ -87,12 +87,12 @@ class _DailySprintLoadingScreenState extends State<DailySprintLoadingScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const CircularProgressIndicator(color: AppColors.indigo400),
+              const CircularProgressIndicator(color: AppColors.primaryText),
               const SizedBox(height: 16),
               Text(
                 _progress,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.slate400),
+                style: const TextStyle(color: AppColors.textMuted),
               ),
               const SizedBox(height: 8),
               const Text(
@@ -101,7 +101,7 @@ class _DailySprintLoadingScreenState extends State<DailySprintLoadingScreen> {
                 'minutes, longer if Groq is busy. If this line keeps '
                 'changing, it\'s working.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.slate600, fontSize: 12),
+                style: TextStyle(color: AppColors.textFaint, fontSize: 12),
               ),
             ],
           ),
@@ -113,12 +113,12 @@ class _DailySprintLoadingScreenState extends State<DailySprintLoadingScreen> {
           children: [
             const SizedBox(height: 40),
             const Icon(Icons.key_off_rounded,
-                color: AppColors.slate600, size: 48),
+                color: AppColors.textFaint, size: 48),
             const SizedBox(height: 16),
             const Text(
               'Add your Groq API key in Settings before starting a Daily Sprint.',
               style: TextStyle(
-                  color: AppColors.slate300, fontSize: 15, height: 1.4),
+                  color: AppColors.textBody, fontSize: 15, height: 1.4),
             ),
             const SizedBox(height: 20),
             SizedBox(
@@ -143,12 +143,12 @@ class _DailySprintLoadingScreenState extends State<DailySprintLoadingScreen> {
           children: [
             const SizedBox(height: 40),
             const Icon(Icons.error_outline_rounded,
-                color: AppColors.rose400, size: 48),
+                color: AppColors.dangerText, size: 48),
             const SizedBox(height: 16),
             Text(
               "Couldn't prepare today's sprint — ${_error ?? 'unknown error'}",
               style: const TextStyle(
-                  color: AppColors.slate300, fontSize: 15, height: 1.4),
+                  color: AppColors.textBody, fontSize: 15, height: 1.4),
             ),
             const SizedBox(height: 20),
             SizedBox(

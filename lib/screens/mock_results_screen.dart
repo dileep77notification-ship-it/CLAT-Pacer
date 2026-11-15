@@ -45,11 +45,11 @@ class MockResultsScreen extends StatelessWidget {
             if (autoSubmitted)
               Container(
                 width: double.infinity,
-                color: AppColors.amber400.withOpacity(0.12),
+                color: AppColors.warning.withOpacity(0.12),
                 padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                 child: const Text(
                   "Time's up — this attempt was submitted automatically.",
-                  style: TextStyle(color: AppColors.amber400, fontSize: 12.5),
+                  style: TextStyle(color: AppColors.warning, fontSize: 12.5),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -79,10 +79,10 @@ class MockResultsScreen extends StatelessWidget {
                                       child: CircularProgressIndicator(
                                         value: percent,
                                         strokeWidth: 6,
-                                        backgroundColor: AppColors.slate800,
+                                        backgroundColor: AppColors.tint,
                                         color: percent >= 0.5
-                                            ? AppColors.emerald400
-                                            : AppColors.rose400,
+                                            ? AppColors.successText
+                                            : AppColors.dangerText,
                                       ),
                                     ),
                                     Text(
@@ -90,7 +90,7 @@ class MockResultsScreen extends StatelessWidget {
                                       style: const TextStyle(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w700,
-                                          color: AppColors.slate100),
+                                          color: AppColors.textPrimary),
                                     ),
                                   ],
                                 ),
@@ -105,14 +105,14 @@ class MockResultsScreen extends StatelessWidget {
                                       style: const TextStyle(
                                         fontSize: 24,
                                         fontWeight: FontWeight.w800,
-                                        color: AppColors.slate100,
+                                        color: AppColors.textPrimary,
                                       ),
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
                                       'Net score · ${_formatDuration(attempt.durationSeconds)}',
                                       style: const TextStyle(
-                                          color: AppColors.slate400, fontSize: 12.5),
+                                          color: AppColors.textMuted, fontSize: 12.5),
                                     ),
                                   ],
                                 ),
@@ -123,13 +123,13 @@ class MockResultsScreen extends StatelessWidget {
                           Row(
                             children: [
                               _miniStat('${attempt.overallCorrect}', 'correct',
-                                  AppColors.emerald400),
+                                  AppColors.successText),
                               const SizedBox(width: 10),
                               _miniStat('${attempt.overallWrong}', 'wrong',
-                                  AppColors.rose400),
+                                  AppColors.dangerText),
                               const SizedBox(width: 10),
                               _miniStat('${attempt.overallUnattempted}',
-                                  'unattempted', AppColors.slate400),
+                                  'unattempted', AppColors.textMuted),
                             ],
                           ),
                         ],
@@ -140,7 +140,7 @@ class MockResultsScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   const Text('Section breakdown',
                       style: TextStyle(
-                          color: AppColors.slate100,
+                          color: AppColors.textPrimary,
                           fontSize: 14,
                           fontWeight: FontWeight.w700)),
                   const SizedBox(height: 10),
@@ -157,14 +157,14 @@ class MockResultsScreen extends StatelessWidget {
                                   children: [
                                     Text(s.label,
                                         style: const TextStyle(
-                                            color: AppColors.slate100,
+                                            color: AppColors.textPrimary,
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600)),
                                     const SizedBox(height: 4),
                                     Text(
                                       '${s.correct} correct · ${s.wrong} wrong · ${s.unattempted} unattempted',
                                       style: const TextStyle(
-                                          color: AppColors.slate400,
+                                          color: AppColors.textMuted,
                                           fontSize: 12),
                                     ),
                                   ],
@@ -174,8 +174,8 @@ class MockResultsScreen extends StatelessWidget {
                                 '${s.netScore.toStringAsFixed(2)}/${s.maxScore.toStringAsFixed(0)}',
                                 style: TextStyle(
                                     color: s.netScore >= 0
-                                        ? AppColors.emerald400
-                                        : AppColors.rose400,
+                                        ? AppColors.successText
+                                        : AppColors.dangerText,
                                     fontSize: 15,
                                     fontWeight: FontWeight.w700),
                               ),
@@ -187,7 +187,7 @@ class MockResultsScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   const Text('Review',
                       style: TextStyle(
-                          color: AppColors.slate100,
+                          color: AppColors.textPrimary,
                           fontSize: 14,
                           fontWeight: FontWeight.w700)),
                   const SizedBox(height: 10),
@@ -214,17 +214,17 @@ class MockResultsScreen extends StatelessWidget {
                                           ? Icons.check_circle_rounded
                                           : Icons.cancel_rounded),
                                   color: isUnattempted
-                                      ? AppColors.slate600
+                                      ? AppColors.textFaint
                                       : (isCorrect
-                                          ? AppColors.emerald400
-                                          : AppColors.rose400),
+                                          ? AppColors.successText
+                                          : AppColors.dangerText),
                                   size: 17,
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
                                   'Q${i + 1} · ${q.section ?? ''}',
                                   style: const TextStyle(
-                                    color: AppColors.slate400,
+                                    color: AppColors.textMuted,
                                     fontSize: 11.5,
                                     fontWeight: FontWeight.w700,
                                   ),
@@ -240,7 +240,7 @@ class MockResultsScreen extends StatelessWidget {
                                   tilePadding: EdgeInsets.zero,
                                   title: const Text('View passage',
                                       style: TextStyle(
-                                          color: AppColors.indigo400,
+                                          color: AppColors.primaryText,
                                           fontSize: 12.5)),
                                   children: [
                                     Padding(
@@ -248,7 +248,7 @@ class MockResultsScreen extends StatelessWidget {
                                       child: Text(
                                         q.passage!,
                                         style: const TextStyle(
-                                            color: AppColors.slate400,
+                                            color: AppColors.textMuted,
                                             fontSize: 12.5,
                                             height: 1.4),
                                       ),
@@ -261,7 +261,7 @@ class MockResultsScreen extends StatelessWidget {
                             Text(
                               q.prompt,
                               style: const TextStyle(
-                                color: AppColors.slate100,
+                                color: AppColors.textPrimary,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                                 height: 1.4,
@@ -274,10 +274,10 @@ class MockResultsScreen extends StatelessWidget {
                                   : 'Your answer: ${q.options[userAnswer]}',
                               style: TextStyle(
                                 color: isUnattempted
-                                    ? AppColors.slate400
+                                    ? AppColors.textMuted
                                     : (isCorrect
-                                        ? AppColors.emerald400
-                                        : AppColors.rose400),
+                                        ? AppColors.successText
+                                        : AppColors.dangerText),
                                 fontSize: 13,
                               ),
                             ),
@@ -286,7 +286,7 @@ class MockResultsScreen extends StatelessWidget {
                               Text(
                                 'Correct answer: ${q.options[q.correctIndex]}',
                                 style: const TextStyle(
-                                    color: AppColors.emerald400, fontSize: 13),
+                                    color: AppColors.successText, fontSize: 13),
                               ),
                             ],
                             if (q.explanation.isNotEmpty) ...[
@@ -294,7 +294,7 @@ class MockResultsScreen extends StatelessWidget {
                               Text(
                                 q.explanation,
                                 style: const TextStyle(
-                                    color: AppColors.slate400,
+                                    color: AppColors.textMuted,
                                     fontSize: 12.5,
                                     height: 1.4),
                               ),
@@ -312,7 +312,7 @@ class MockResultsScreen extends StatelessWidget {
                       onPressed: () =>
                           Navigator.of(context).popUntil((r) => r.isFirst),
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.slate700),
+                        side: const BorderSide(color: AppColors.lineStrong),
                       ),
                       child: const Text('Back to Home'),
                     ),
@@ -331,9 +331,9 @@ class MockResultsScreen extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: AppColors.slate900,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(AppStyle.radiusSm),
-          border: Border.all(color: AppColors.slate800),
+          border: Border.all(color: AppColors.tint),
         ),
         child: Column(
           children: [
@@ -342,7 +342,7 @@ class MockResultsScreen extends StatelessWidget {
                     color: color, fontSize: 16, fontWeight: FontWeight.w700)),
             const SizedBox(height: 2),
             Text(label,
-                style: const TextStyle(color: AppColors.slate400, fontSize: 10.5)),
+                style: const TextStyle(color: AppColors.textMuted, fontSize: 10.5)),
           ],
         ),
       ),

@@ -155,13 +155,13 @@ class _MockTakingScreenState extends State<MockTakingScreen> {
     final proceed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.slate900,
+        backgroundColor: AppColors.surface,
         title: const Text('Submit mock test?'),
         content: Text(
           unattempted > 0
               ? '$unattempted question${unattempted == 1 ? '' : 's'} left unattempted. Submit anyway?'
               : 'All questions attempted. Submit now?',
-          style: const TextStyle(color: AppColors.slate300),
+          style: const TextStyle(color: AppColors.textBody),
         ),
         actions: [
           TextButton(
@@ -252,11 +252,11 @@ class _MockTakingScreenState extends State<MockTakingScreen> {
     final leave = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.slate900,
+        backgroundColor: AppColors.surface,
         title: const Text('Exit mock test?'),
         content: const Text(
           'Your progress will be lost — this attempt will not be scored or saved.',
-          style: TextStyle(color: AppColors.slate300),
+          style: TextStyle(color: AppColors.textBody),
         ),
         actions: [
           TextButton(
@@ -278,15 +278,15 @@ class _MockTakingScreenState extends State<MockTakingScreen> {
   }
 
   Color _timerColor() {
-    if (_remainingSeconds <= 60) return AppColors.rose400;
-    if (_remainingSeconds <= 5 * 60) return AppColors.amber400;
-    return AppColors.slate300;
+    if (_remainingSeconds <= 60) return AppColors.dangerText;
+    if (_remainingSeconds <= 5 * 60) return AppColors.warning;
+    return AppColors.textBody;
   }
 
   void _showPalette() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.slate900,
+      backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -301,14 +301,14 @@ class _MockTakingScreenState extends State<MockTakingScreen> {
                 children: [
                   const Text('Questions',
                       style: TextStyle(
-                          color: AppColors.slate100,
+                          color: AppColors.textPrimary,
                           fontSize: 16,
                           fontWeight: FontWeight.w700)),
                   const SizedBox(height: 12),
                   for (final range in _sectionRanges) ...[
                     Text(range.label,
                         style: const TextStyle(
-                            color: AppColors.slate400,
+                            color: AppColors.textMuted,
                             fontSize: 12,
                             fontWeight: FontWeight.w700)),
                     const SizedBox(height: 8),
@@ -336,16 +336,16 @@ class _MockTakingScreenState extends State<MockTakingScreen> {
     final isAnswered = _selected[index] != null;
     final isMarked = _markedForReview.contains(index);
 
-    Color bg = AppColors.slate800;
-    Color border = AppColors.slate700;
-    Color text = AppColors.slate300;
+    Color bg = AppColors.tint;
+    Color border = AppColors.lineStrong;
+    Color text = AppColors.textBody;
     if (isAnswered) {
-      bg = AppColors.indigo500;
-      border = AppColors.indigo500;
+      bg = AppColors.primary;
+      border = AppColors.primary;
       text = Colors.white;
     }
     if (isMarked) {
-      border = AppColors.amber400;
+      border = AppColors.warning;
     }
 
     return InkWell(
@@ -390,9 +390,9 @@ class _MockTakingScreenState extends State<MockTakingScreen> {
               margin: const EdgeInsets.only(right: 8),
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: AppColors.slate900,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(AppStyle.radiusSm),
-                border: Border.all(color: AppColors.slate800),
+                border: Border.all(color: AppColors.tint),
               ),
               child: Row(
                 children: [
@@ -441,13 +441,13 @@ class _MockTakingScreenState extends State<MockTakingScreen> {
                               const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                           decoration: BoxDecoration(
                             color: isActive
-                                ? AppColors.indigo500.withOpacity(0.18)
-                                : AppColors.slate900,
+                                ? AppColors.primary.withOpacity(0.18)
+                                : AppColors.surface,
                             borderRadius: BorderRadius.circular(AppStyle.radiusSm),
                             border: Border.all(
                                 color: isActive
-                                    ? AppColors.indigo500
-                                    : AppColors.slate800),
+                                    ? AppColors.primary
+                                    : AppColors.tint),
                           ),
                           child: Text(
                             '${range.label} ($answered/${range.end - range.start + 1})',
@@ -455,8 +455,8 @@ class _MockTakingScreenState extends State<MockTakingScreen> {
                               fontSize: 12.5,
                               fontWeight: FontWeight.w600,
                               color: isActive
-                                  ? AppColors.indigo400
-                                  : AppColors.slate400,
+                                  ? AppColors.primaryText
+                                  : AppColors.textMuted,
                             ),
                           ),
                         ),
@@ -465,7 +465,7 @@ class _MockTakingScreenState extends State<MockTakingScreen> {
                   },
                 ),
               ),
-              const Divider(height: 1, color: AppColors.slate800),
+              const Divider(height: 1, color: AppColors.tint),
 
               Expanded(
                 child: SingleChildScrollView(
@@ -477,11 +477,11 @@ class _MockTakingScreenState extends State<MockTakingScreen> {
                         children: [
                           Text('Question ${_currentIndex + 1} of ${widget.questions.length}',
                               style: const TextStyle(
-                                  color: AppColors.slate400, fontSize: 12.5)),
+                                  color: AppColors.textMuted, fontSize: 12.5)),
                           const Spacer(),
                           if (_markedForReview.contains(_currentIndex))
                             const Icon(Icons.bookmark_rounded,
-                                size: 16, color: AppColors.amber400),
+                                size: 16, color: AppColors.warning),
                         ],
                       ),
                       const SizedBox(height: 10),
@@ -490,14 +490,14 @@ class _MockTakingScreenState extends State<MockTakingScreen> {
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: AppColors.slate900,
+                            color: AppColors.surface,
                             borderRadius: BorderRadius.circular(AppStyle.radiusLg),
-                            border: Border.all(color: AppColors.slate800),
+                            border: Border.all(color: AppColors.tint),
                           ),
                           child: Text(
                             question.passage!,
                             style: const TextStyle(
-                                color: AppColors.slate300,
+                                color: AppColors.textBody,
                                 fontSize: 13.5,
                                 height: 1.5),
                           ),
@@ -511,7 +511,7 @@ class _MockTakingScreenState extends State<MockTakingScreen> {
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
                           height: 1.45,
-                          color: AppColors.slate100,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 18),
@@ -522,8 +522,8 @@ class _MockTakingScreenState extends State<MockTakingScreen> {
                           padding: const EdgeInsets.only(bottom: 10),
                           child: Material(
                             color: isSelected
-                                ? AppColors.indigo500.withOpacity(0.15)
-                                : AppColors.slate900,
+                                ? AppColors.primary.withOpacity(0.15)
+                                : AppColors.surface,
                             borderRadius: BorderRadius.circular(AppStyle.radiusMd),
                             child: InkWell(
                               borderRadius: BorderRadius.circular(AppStyle.radiusMd),
@@ -535,8 +535,8 @@ class _MockTakingScreenState extends State<MockTakingScreen> {
                                   borderRadius: BorderRadius.circular(AppStyle.radiusMd),
                                   border: Border.all(
                                     color: isSelected
-                                        ? AppColors.indigo500
-                                        : AppColors.slate800,
+                                        ? AppColors.primary
+                                        : AppColors.tint,
                                     width: isSelected ? 1.6 : 1,
                                   ),
                                 ),
@@ -549,10 +549,10 @@ class _MockTakingScreenState extends State<MockTakingScreen> {
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
                                         color: isSelected
-                                            ? AppColors.indigo500
-                                            : AppColors.slate800,
+                                            ? AppColors.primary
+                                            : AppColors.tint,
                                         border: Border.all(
-                                            color: AppColors.slate700, width: 1),
+                                            color: AppColors.lineStrong, width: 1),
                                       ),
                                       child: Text(
                                         String.fromCharCode(65 + i),
@@ -561,7 +561,7 @@ class _MockTakingScreenState extends State<MockTakingScreen> {
                                           fontWeight: FontWeight.w700,
                                           color: isSelected
                                               ? Colors.white
-                                              : AppColors.slate400,
+                                              : AppColors.textMuted,
                                         ),
                                       ),
                                     ),
@@ -572,7 +572,7 @@ class _MockTakingScreenState extends State<MockTakingScreen> {
                                         style: const TextStyle(
                                           fontSize: 15,
                                           height: 1.4,
-                                          color: AppColors.slate200,
+                                          color: AppColors.textSoft,
                                         ),
                                       ),
                                     ),
@@ -588,7 +588,7 @@ class _MockTakingScreenState extends State<MockTakingScreen> {
                 ),
               ),
 
-              const Divider(height: 1, color: AppColors.slate800),
+              const Divider(height: 1, color: AppColors.tint),
               Padding(
                 padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
                 child: Row(
@@ -607,8 +607,8 @@ class _MockTakingScreenState extends State<MockTakingScreen> {
                             ? Icons.bookmark_rounded
                             : Icons.bookmark_border_rounded,
                         color: _markedForReview.contains(_currentIndex)
-                            ? AppColors.amber400
-                            : AppColors.slate400,
+                            ? AppColors.warning
+                            : AppColors.textMuted,
                       ),
                       tooltip: 'Mark for review',
                     ),
@@ -618,7 +618,7 @@ class _MockTakingScreenState extends State<MockTakingScreen> {
                         icon: const Icon(Icons.grid_view_rounded, size: 16),
                         label: Text('${_answeredCount}/${widget.questions.length}'),
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: AppColors.slate700),
+                          side: const BorderSide(color: AppColors.lineStrong),
                         ),
                       ),
                     ),
