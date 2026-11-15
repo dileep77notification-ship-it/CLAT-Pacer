@@ -24,8 +24,11 @@ import 'screens/mock_loading_screen.dart';
 import 'screens/daily_sprint_loading_screen.dart';
 import 'screens/brain_gym_screen.dart';
 import 'models/daily_sprint_models.dart';
+import 'services/notification_service.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService.instance.init();
   runApp(const ClatPacerApp());
 }
 
@@ -553,13 +556,28 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   late Future<DashboardStats> _statsFuture;
 
   @override
   void initState() {
     super.initState();
     _statsFuture = StorageService.loadStats();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Keep the rolling 30-day reminder window topped up.
+    if (state == AppLifecycleState.resumed) {
+      NotificationService.instance.refresh();
+    }
   }
 
   void _refresh() {
@@ -1646,6 +1664,8 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> {
       wordsRead: widget.passage.wordCount,
       sessionWpm: widget.wpm,
     );
+    // Today's sprint is done, so skip today's reminder.
+    await NotificationService.instance.onSprintCompleted();
     if (mounted) Navigator.of(context).pop();
   }
 

@@ -8,6 +8,7 @@
 import 'package:flutter/material.dart';
 import '../main.dart' show AppColors, AppStyle;
 import '../services/api_key_service.dart';
+import '../widgets/reminder_settings_tile.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -73,7 +74,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child:
                   CircularProgressIndicator(color: AppColors.indigo400))
           : SafeArea(
-              child: Padding(
+              child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -151,6 +152,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             color: AppColors.emerald400, fontSize: 13),
                       ),
                     ],
+                    const SizedBox(height: 32),
+                    const Text(
+                      'Daily reminder',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.slate100,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Get a nudge each day to finish your Daily Sprint and keep your streak.',
+                      style:
+                          TextStyle(color: AppColors.slate400, fontSize: 13),
+                    ),
+                    const SizedBox(height: 8),
+                    const ReminderSettingsTile(),
                   ],
                 ),
               ),
