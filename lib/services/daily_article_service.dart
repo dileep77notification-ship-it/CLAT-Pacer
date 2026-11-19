@@ -122,7 +122,7 @@ class DailyArticleService {
     // Wider pool than the old single-passage version (15) since we're now
     // picking several distinct stories out of it, across five feeds.
     final candidates = headlines.take(30).toList();
-    final headlinesText = candidates
+    String headlinesTextOf(List<RssHeadline> hs) => hs
         .map((h) =>
             '- [${h.source}] ${h.title}${h.description != null ? ' — ${h.description}' : ''}')
         .join('\n');
@@ -136,13 +136,16 @@ class DailyArticleService {
       try {
         final result = await _generateOnePassage(
           apiKey: apiKey,
-          headlinesText: headlinesText,
+          headlinesText: headlinesTextOf(candidates),
           excludeHeadlines: usedHeadlines,
           onRetry: (attempt, reason) => onProgress?.call(
               'Story ${i + 1} of $count — $reason, retrying (attempt ${attempt + 1} of $_kMaxAttempts)…'),
         );
         passages.add(result.passage);
         usedHeadlines.add(result.sourceHeadline);
+        // The model sometimes ignores the "don't reuse these stories"
+        // instruction, so also take the used story out of the list it sees.
+        _removeBestMatch(candidates, result.sourceHeadline);
       } catch (e) {
         lastError = e;
         onProgress?.call('Story ${i + 1} of $count failed — skipping it.');
@@ -233,10 +236,48 @@ class DailyArticleService {
         throw DailyArticleException('Sarvam returned HTTP ${response.statusCode}.');
       }
 
-      return _parsePassage(response.body);
+      final parsed = _parsePassage(response.body);
+
+      // Observed in testing: the model sometimes returns a ~290-word passage
+      // despite the 450-500 target. Retry rather than ship a short one,
+      // unless this was the last attempt.
+      final words = parsed.passage.body.trim().split(RegExp(r'\s+')).length;
+      if (words < _kMinPassageWords && attempt < _kMaxAttempts) {
+        onRetry?.call(attempt, 'passage was too short');
+        continue;
+      }
+      return parsed;
     }
 
     throw DailyArticleException('Failed after $_kMaxAttempts attempts.');
+  }
+
+  static const int _kMinPassageWords = 380;
+
+  static Set<String> _words(String s) => s
+      .toLowerCase()
+      .split(RegExp(r'[^a-z0-9]+'))
+      .where((w) => w.length > 2)
+      .toSet();
+
+  /// Removes the headline in [pool] that best matches [reported] (the model
+  /// may add a "Source - " prefix or lightly reword it, so match by word
+  /// overlap, not equality). Does nothing if no headline overlaps enough.
+  static void _removeBestMatch(List<RssHeadline> pool, String reported) {
+    final target = _words(reported);
+    if (target.isEmpty) return;
+    var bestIdx = -1;
+    var bestScore = 0.0;
+    for (var i = 0; i < pool.length; i++) {
+      final w = _words(pool[i].title);
+      if (w.isEmpty) continue;
+      final score = w.intersection(target).length / w.length;
+      if (score > bestScore) {
+        bestScore = score;
+        bestIdx = i;
+      }
+    }
+    if (bestIdx >= 0 && bestScore >= 0.6) pool.removeAt(bestIdx);
   }
 
   static final Map<String, dynamic> _submitDailyPassageTool = {
