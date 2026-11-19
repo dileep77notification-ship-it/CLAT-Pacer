@@ -6,6 +6,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:clat_pacer/services/notification_service.dart';
 
+/// The plugin receives the reminder as an absolute UTC instant, so the
+/// expected string for a device-local wall-clock time depends on the machine's
+/// timezone. Build it the same way instead of hardcoding a UTC string.
+String _utc(int y, int mo, int d, int h, int mi) {
+  final iso = DateTime(y, mo, d, h, mi).toUtc().toIso8601String();
+  return iso.substring(0, 16); // yyyy-MM-ddTHH:mm
+}
+
 /// Exercises the real scheduling rules against a mocked plugin channel, so we
 /// assert on exactly what would be handed to Android.
 void main() {
@@ -65,8 +73,8 @@ void main() {
     expect(s.length, 30);
     expect(s.first.arguments['id'], 7000);
     expect(s.last.arguments['id'], 7029);
-    expect(s.first.arguments['scheduledDateTime'], contains('2030-03-10T19:00'));
-    expect(s.last.arguments['scheduledDateTime'], contains('2030-04-08T19:00'));
+    expect(s.first.arguments['scheduledDateTime'], contains(_utc(2030, 3, 10, 19, 0)));
+    expect(s.last.arguments['scheduledDateTime'], contains(_utc(2030, 4, 8, 19, 0)));
   });
 
   test("enabled but 19:00 already passed today: starts tomorrow", () async {
@@ -80,7 +88,7 @@ void main() {
     final s = scheduled();
     expect(s.length, 29);
     expect(s.first.arguments['id'], 7001);
-    expect(s.first.arguments['scheduledDateTime'], contains('2030-03-11T19:00'));
+    expect(s.first.arguments['scheduledDateTime'], contains(_utc(2030, 3, 11, 19, 0)));
   });
 
   test("sprint already done today: skips today's reminder only", () async {
@@ -94,7 +102,7 @@ void main() {
     final s = scheduled();
     expect(s.length, 29);
     expect(s.first.arguments['id'], 7001);
-    expect(s.first.arguments['scheduledDateTime'], contains('2030-03-11T19:00'));
+    expect(s.first.arguments['scheduledDateTime'], contains(_utc(2030, 3, 11, 19, 0)));
   });
 
   test('a sprint finished yesterday does not suppress today', () async {
@@ -118,7 +126,7 @@ void main() {
     await service.refresh();
     final s = scheduled();
     expect(s.length, 30);
-    expect(s.last.arguments['scheduledDateTime'], contains('2031-01-18T21:15'));
+    expect(s.last.arguments['scheduledDateTime'], contains(_utc(2031, 1, 18, 21, 15)));
   });
 
   test('dateKey matches the app\'s yyyy-MM-dd format', () {
