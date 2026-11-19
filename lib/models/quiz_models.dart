@@ -19,8 +19,8 @@
 //     section tabs/palette and for per-section scoring — see copyWith().
 //   - `topic`: a finer-grained tag than `section` — e.g. "contract" within
 //     Legal Reasoning, "percentage" within Quant, "strengthen" within
-//     Logical Reasoning. Every generator now asks Groq to set this (see
-//     grok_service.dart's per-section topic lists), and quiz_taking_screen
+//     Logical Reasoning. Every generator now asks Sarvam to set this (see
+//     sarvam_service.dart's per-section topic lists), and quiz_taking_screen
 //     / mock_taking_screen both log it to TopicPerformanceService on
 //     submit. This is what unblocks §7 Brain Gym — without it, accuracy
 //     could only be tracked per SECTION, not per weak topic within one.

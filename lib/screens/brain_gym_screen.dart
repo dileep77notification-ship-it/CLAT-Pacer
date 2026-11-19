@@ -6,7 +6,7 @@
 // only) consumer of TopicPerformanceService.weakestTopics(). It lists the
 // student's weakest (section, topic) pairs, worst first, and lets them
 // launch a short 5-question set focused entirely on one of them via each
-// generator's `focusTopic` parameter (see grok_service.dart).
+// generator's `focusTopic` parameter (see sarvam_service.dart).
 //
 // Needs at least `_kMinAttempts` logged answers for a topic before it will
 // surface it (same floor TopicPerformanceService.weakestTopics() defaults
@@ -18,7 +18,7 @@ import '../main.dart' show AppColors, AppStyle, IconBadge, SectionHeader;
 import '../models/quiz_models.dart';
 import '../models/topic_performance_models.dart';
 import '../services/api_key_service.dart';
-import '../services/grok_service.dart';
+import '../services/sarvam_service.dart';
 import '../services/quiz_storage_service.dart';
 import '../services/rss_service.dart';
 import '../services/topic_performance_service.dart';
@@ -182,28 +182,28 @@ class _BrainGymScreenState extends State<BrainGymScreen> {
   }) {
     switch (section) {
       case QuizSection.legalReasoning:
-        return GroqService.generateQuestions(
+        return SarvamService.generateQuestions(
           apiKey: apiKey,
           count: _kDrillSize,
           focusTopic: topic,
           onProgress: onProgress,
         );
       case QuizSection.logicalReasoning:
-        return GroqService.generateLogicalReasoningQuestions(
+        return SarvamService.generateLogicalReasoningQuestions(
           apiKey: apiKey,
           count: _kDrillSize,
           focusTopic: topic,
           onProgress: onProgress,
         );
       case QuizSection.quant:
-        return GroqService.generateQuantQuestions(
+        return SarvamService.generateQuantQuestions(
           apiKey: apiKey,
           count: _kDrillSize,
           focusTopic: topic,
           onProgress: onProgress,
         );
       case QuizSection.english:
-        return GroqService.generateEnglishQuestions(
+        return SarvamService.generateEnglishQuestions(
           apiKey: apiKey,
           count: _kDrillSize,
           focusTopic: topic,
@@ -211,7 +211,7 @@ class _BrainGymScreenState extends State<BrainGymScreen> {
         );
       case QuizSection.gkCurrentAffairs:
         return RssService.fetchAllHeadlines().then(
-          (headlines) => GroqService.generateGkQuestions(
+          (headlines) => SarvamService.generateGkQuestions(
             apiKey: apiKey,
             headlines: headlines,
             count: _kDrillSize,
@@ -418,7 +418,7 @@ class _BrainGymScreenState extends State<BrainGymScreen> {
                   color: AppColors.slate600, size: 48),
               const SizedBox(height: 16),
               const Text(
-                'Add your Groq API key in Settings before drilling a weak topic.',
+                'Add your Sarvam API key in Settings before drilling a weak topic.',
                 style: TextStyle(
                     color: AppColors.slate300, fontSize: 15, height: 1.4),
               ),

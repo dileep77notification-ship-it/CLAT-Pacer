@@ -2,7 +2,7 @@
 // GK / CURRENT AFFAIRS — START SCREEN
 // Mirrors legal_reasoning_screen.dart's no-key/loading/error pattern.
 // "Start New Quiz" fetches today's headlines (RssService), then generates
-// 10 headline-grounded + static-GK MCQs via GroqService.generateGkQuestions,
+// 10 headline-grounded + static-GK MCQs via SarvamService.generateGkQuestions,
 // batched the same way as Legal Reasoning. Feeds into the generic
 // QuizTakingScreen (section: gk_current_affairs) rather than a GK-specific
 // quiz screen.
@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 import '../main.dart' show AppColors, AppStyle, IconBadge;
 import '../models/quiz_models.dart';
 import '../services/api_key_service.dart';
-import '../services/grok_service.dart';
+import '../services/sarvam_service.dart';
 import '../services/quiz_storage_service.dart';
 import '../services/rss_service.dart';
 import 'settings_screen.dart';
@@ -66,7 +66,7 @@ class _GkQuizScreenState extends State<GkQuizScreen> {
       if (!mounted) return;
       setState(() => _loadingLabel = 'Generating 10 fresh questions…');
 
-      final questions = await GroqService.generateGkQuestions(
+      final questions = await SarvamService.generateGkQuestions(
         apiKey: key,
         headlines: headlines,
         count: 10,
@@ -131,7 +131,7 @@ class _GkQuizScreenState extends State<GkQuizScreen> {
                 color: AppColors.slate600, size: 48),
             const SizedBox(height: 16),
             const Text(
-              'Add your Groq API key in Settings before starting a GK / Current Affairs quiz.',
+              'Add your Sarvam API key in Settings before starting a GK / Current Affairs quiz.',
               style: TextStyle(
                   color: AppColors.slate300, fontSize: 15, height: 1.4),
             ),

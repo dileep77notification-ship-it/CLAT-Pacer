@@ -79,7 +79,7 @@ class RssService {
           'Could not reach any news source. Check your internet connection.');
     }
 
-    // Most recent first, so the Groq prompt sees today's news first.
+    // Most recent first, so the Sarvam prompt sees today's news first.
     all.sort((a, b) {
       if (a.pubDate == null && b.pubDate == null) return 0;
       if (a.pubDate == null) return 1;

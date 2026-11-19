@@ -305,7 +305,7 @@ class ClatPacerApp extends StatelessWidget {
 // ============================================================================
 // SECTION 3 — LEGACY DUMMY DATA
 // No longer wired to the Start button (see SECTION 5 — HOME SCREEN, which
-// now routes through DailySprintLoadingScreen for live RSS + Groq content).
+// now routes through DailySprintLoadingScreen for live RSS + Sarvam content).
 // Left in place, unused, as a quick offline reference/fixture if needed.
 // ============================================================================
 
@@ -761,7 +761,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: AppStyle.sectionGap),
                   const SectionHeader(
                     title: 'Practice by section',
-                    subtitle: 'Fresh, Groq-generated questions every time',
+                    subtitle: 'Fresh, Sarvam-generated questions every time',
                   ),
                   GridView.count(
                     crossAxisCount: 2,

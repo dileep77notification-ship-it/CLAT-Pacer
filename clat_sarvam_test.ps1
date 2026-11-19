@@ -1,18 +1,18 @@
 # ============================================================
-# CLAT App - Groq API Dependency Test
+# CLAT App - Sarvam API Dependency Test
 # Same shape as the Gemini/Claude tests: key validity, trivial
 # call, structured output via tool-calling, 5x reliability check.
-# Groq is OpenAI-API-compatible: api.groq.com/openai/v1/...
+# Sarvam is OpenAI-API-compatible: api.sarvam.com/openai/v1/...
 #
 # USAGE:
 #   Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
-#   .\clat_groq_test.ps1
+#   .\clat_sarvam_test.ps1
 # Paste back the full output.
 # ============================================================
 
-$GROQ_API_KEY = "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"
-$modelName = "qwen/qwen3.8-27b"
-$baseUrl = "https://api.groq.com/openai/v1"
+$GROQ_API_KEY = "YOUR_SARVAM_KEY"
+$modelName = "sarvam-105b-conversations"
+$baseUrl = "https://api.sarvam.com/openai/v1"
 
 function Write-Section($title) {
     Write-Host ""
@@ -29,7 +29,7 @@ function Test-HasNonEnglishChars($text) {
 
 $englishInstruction = "IMPORTANT: Respond entirely in English. Do not include any non-English characters, words, or scripts anywhere in your output. "
 
-function Get-GroqErrorBody($errorRecord) {
+function Get-SarvamErrorBody($errorRecord) {
     $body = $null
     try {
         if ($errorRecord.Exception.Response) {
@@ -43,7 +43,7 @@ function Get-GroqErrorBody($errorRecord) {
     return $body
 }
 
-function Invoke-GroqWithRetry($url, $bodyJson, $headers, $maxAttempts = 4) {
+function Invoke-SarvamWithRetry($url, $bodyJson, $headers, $maxAttempts = 4) {
     $delays = @(5, 15, 30)
     for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
         try {
@@ -52,7 +52,7 @@ function Invoke-GroqWithRetry($url, $bodyJson, $headers, $maxAttempts = 4) {
         } catch {
             $statusCode = $null
             try { $statusCode = $_.Exception.Response.StatusCode.value__ } catch {}
-            $body = Get-GroqErrorBody $_
+            $body = Get-SarvamErrorBody $_
             $isRetryable = ($statusCode -eq 429) -or ($statusCode -eq 503)
             if ($isRetryable -and $attempt -lt $maxAttempts) {
                 $wait = $delays[$attempt - 1]
@@ -77,7 +77,7 @@ try {
     $modelsResp.data | ForEach-Object { Write-Host "  - $($_.id)" }
 } catch {
     Write-Host "FAILED:" -ForegroundColor Red
-    Write-Host (Get-GroqErrorBody $_) -ForegroundColor Red
+    Write-Host (Get-SarvamErrorBody $_) -ForegroundColor Red
 }
 
 # ------------------------------------------------------------
@@ -90,7 +90,7 @@ $trivialBody = @{
     max_tokens = 20
 } | ConvertTo-Json -Depth 10
 
-$result = Invoke-GroqWithRetry -url "$baseUrl/chat/completions" -bodyJson $trivialBody -headers $headers
+$result = Invoke-SarvamWithRetry -url "$baseUrl/chat/completions" -bodyJson $trivialBody -headers $headers
 if ($result.Success) {
     Write-Host "SUCCESS. Model response:" -ForegroundColor Green
     Write-Host ($result.Response.choices[0].message.content)
@@ -130,7 +130,7 @@ $schemaBody = @{
     max_tokens = 2048
 } | ConvertTo-Json -Depth 20
 
-$result = Invoke-GroqWithRetry -url "$baseUrl/chat/completions" -bodyJson $schemaBody -headers $headers
+$result = Invoke-SarvamWithRetry -url "$baseUrl/chat/completions" -bodyJson $schemaBody -headers $headers
 if ($result.Success) {
     $toolCall = $result.Response.choices[0].message.tool_calls | Select-Object -First 1
     if ($toolCall) {
@@ -170,7 +170,7 @@ for ($i = 1; $i -le 5; $i++) {
         max_tokens = 1024
     } | ConvertTo-Json -Depth 20
 
-    $result = Invoke-GroqWithRetry -url "$baseUrl/chat/completions" -bodyJson $body2 -headers $headers
+    $result = Invoke-SarvamWithRetry -url "$baseUrl/chat/completions" -bodyJson $body2 -headers $headers
     if ($result.Success) {
         $toolCall = $result.Response.choices[0].message.tool_calls | Select-Object -First 1
         if ($toolCall) {
@@ -194,5 +194,5 @@ Write-Host ""
 Write-Host "Reliability result: $successCount / 5 structured calls passed schema validation." -ForegroundColor Cyan
 
 Write-Section "SUMMARY"
-Write-Host "Groq structured-output reliability: $successCount / 5" -ForegroundColor Cyan
+Write-Host "Sarvam structured-output reliability: $successCount / 5" -ForegroundColor Cyan
 Write-Host "Pass/fail bar: $(if ($successCount -ge 4) {'LIKELY PASS'} else {'LIKELY FAIL'}) (needs consistent output, not 1-in-5)"

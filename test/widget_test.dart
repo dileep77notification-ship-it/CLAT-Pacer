@@ -9,7 +9,7 @@
 //
 // This replaces it with a minimal real smoke test: launch the actual app
 // and confirm the Home screen renders its title and headline. Not a
-// substitute for real widget/unit test coverage (none of GroqService's
+// substitute for real widget/unit test coverage (none of SarvamService's
 // parsing, the mock negative-marking math, or the storage round-trips are
 // tested anywhere) — just enough that `flutter test` exercises the app
 // instead of silently testing nothing real.

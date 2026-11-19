@@ -8,7 +8,7 @@
 
 ## 1. What Is CLAT Pacer?
 
-CLAT Pacer is an AI-powered, offline-first mobile app that trains law school aspirants for the **Common Law Admission Test (CLAT)**. Every question is generated fresh by Groq's Qwen model using live news headlines — the app never serves a recycled question bank. It tracks performance over time, identifies weak spots, and adapts daily practice accordingly.
+CLAT Pacer is an AI-powered, offline-first mobile app that trains law school aspirants for the **Common Law Admission Test (CLAT)**. Every question is generated fresh by Sarvam's Qwen model using live news headlines — the app never serves a recycled question bank. It tracks performance over time, identifies weak spots, and adapts daily practice accordingly.
 
 ---
 
@@ -24,18 +24,18 @@ CLAT Pacer is an AI-powered, offline-first mobile app that trains law school asp
 
 ## 3. Core Value Propositions
 
-1. **Fresh questions every day** — Groq generates questions on demand; nothing is recycled.
+1. **Fresh questions every day** — Sarvam generates questions on demand; nothing is recycled.
 2. **News-aware** — GK and reading comprehension passages are grounded in today's RSS headlines from The Hindu, Bar & Bench, LiveLaw, and Indian Express.
 3. **Realistic exam simulation** — Full 120-question mock with CLAT's exact negative-marking scheme (+1 / −0.25).
 4. **Smart weak-area targeting** — Brain Gym tracks per-topic accuracy and surfaces focused 5-question drills.
-5. **Zero subscription** — All features work with a free Groq API key.
+5. **Zero subscription** — All features work with a free Sarvam API key.
 
 ---
 
 ## 4. Features (Current)
 
 ### 4.1 Daily Sprint
-- Fetches 5 RSS feeds in parallel; Groq selects 3 most CLAT-relevant passages.
+- Fetches 5 RSS feeds in parallel; Sarvam selects 3 most CLAT-relevant passages.
 - Timed reading (5 minutes) with live WPM counter.
 - 5 elimination-style MCQs per passage (users can strike options before selecting).
 - 5 swipeable flashcards with key facts per passage.
@@ -71,7 +71,7 @@ After each session: score + reviewable list of all questions with correct answer
 - One-tap navigation to all features.
 
 ### 4.6 Settings
-- Encrypted Groq API key management (Android Keystore / iOS Keychain via flutter_secure_storage).
+- Encrypted Sarvam API key management (Android Keystore / iOS Keychain via flutter_secure_storage).
 
 ---
 
@@ -84,16 +84,16 @@ After each session: score + reviewable list of all questions with correct answer
 | Framework | Flutter (Dart 3.3+) |
 | State Management | StatefulWidget + static StorageService singleton |
 | Local Persistence | shared_preferences (JSON) + flutter_secure_storage (API key) |
-| AI Backend | Groq API — `qwen/qwen3.8-27b` model |
+| AI Backend | Sarvam API — `sarvam-105b-conversations` model |
 | News Feed | 5 RSS feeds (XML parsed via the `xml` package) |
 | HTTP | `http` package |
 
 ### 5.2 External API Integrations
 
-**Groq API**
-- Endpoint: `https://api.groq.com/openai/v1/chat/completions`
+**Sarvam API**
+- Endpoint: `https://api.sarvam.ai/v1/chat/completions`
 - Auth: Bearer token (encrypted on device)
-- Free-tier cap: 8,000 tokens/minute
+- Rate limits: not publicly documented; app retries on 429
 - Batching: 6 questions per request, 10-second pause between batches
 - Retry: exponential backoff (5s → 15s → 30s)
 
@@ -145,10 +145,10 @@ Home
 
 | Constraint | Detail |
 |------------|--------|
-| Groq free-tier rate limit | 8,000 tokens/min cap; batching adds ~30 s to full mock generation |
+| Sarvam free-tier rate limit | unpublished limits (Groq-era 8k tokens/min pacing kept); batching adds ~30 s to full mock generation |
 | No cross-device sync | All data local; uninstalling the app loses all history |
 | No question deduplication | Each session generates fresh Qs; no guarantee of zero overlap across sessions |
-| No offline question fallback | If Groq is unreachable, the app cannot generate questions |
+| No offline question fallback | If Sarvam is unreachable, the app cannot generate questions |
 | Single user | No multi-profile support; designed for one student per device |
 | Quant section scope | Text-only math problems; no graphs, tables, or data interpretation |
 | English passages | AI-generated, not sourced from real CLAT paper archives |

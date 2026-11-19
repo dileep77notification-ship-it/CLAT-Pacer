@@ -2,7 +2,7 @@
 // DAILY SPRINT MODELS
 // Moved out of main.dart (where they were originally inline, alongside a
 // single hardcoded PassageModel) so DailyArticleService can build a
-// PassageModel from live RSS + Groq content without main.dart importing a
+// PassageModel from live RSS + Sarvam content without main.dart importing a
 // service file.
 // ============================================================================
 

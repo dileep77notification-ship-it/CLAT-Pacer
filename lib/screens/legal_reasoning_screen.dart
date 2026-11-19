@@ -2,7 +2,7 @@
 // LEGAL REASONING — START SCREEN
 // "Start New Test" (fixed 10 questions). Handles the no-key, loading, and
 // error states; never crashes on a failed API call. Loading state shows
-// live progress since generation happens in batches (see GroqService).
+// live progress since generation happens in batches (see SarvamService).
 // Uses the generic QuizTakingScreen (section: legal_reasoning) rather than a
 // Legal-Reasoning-specific quiz screen.
 // ============================================================================
@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import '../main.dart' show AppColors, AppStyle, IconBadge;
 import '../models/quiz_models.dart';
 import '../services/api_key_service.dart';
-import '../services/grok_service.dart';
+import '../services/sarvam_service.dart';
 import '../services/quiz_storage_service.dart';
 import 'settings_screen.dart';
 import 'quiz_taking_screen.dart';
@@ -56,7 +56,7 @@ class _LegalReasoningScreenState extends State<LegalReasoningScreen> {
         setState(() => _status = _Status.noKey);
         return;
       }
-      final questions = await GroqService.generateQuestions(
+      final questions = await SarvamService.generateQuestions(
         apiKey: key,
         count: 10,
         onProgress: (generated, total) {
@@ -119,7 +119,7 @@ class _LegalReasoningScreenState extends State<LegalReasoningScreen> {
                 color: AppColors.slate600, size: 48),
             const SizedBox(height: 16),
             const Text(
-              'Add your Groq API key in Settings before starting a Legal Reasoning Test.',
+              'Add your Sarvam API key in Settings before starting a Legal Reasoning Test.',
               style: TextStyle(
                   color: AppColors.slate300, fontSize: 15, height: 1.4),
             ),

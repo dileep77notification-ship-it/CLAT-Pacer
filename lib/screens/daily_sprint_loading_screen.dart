@@ -1,6 +1,6 @@
 // ============================================================================
 // DAILY SPRINT — LOADING SCREEN
-// Pushed when "Start Today's Sprint" is tapped. Checks for a Groq key,
+// Pushed when "Start Today's Sprint" is tapped. Checks for a Sarvam key,
 // fetches today's headlines + generates 3-4 passages (DailyArticleService),
 // then replaces itself with DailySprintListScreen. Same no-key/loading/error
 // pattern as LegalReasoningScreen, for a consistent app-wide UX.
@@ -96,9 +96,9 @@ class _DailySprintLoadingScreenState extends State<DailySprintLoadingScreen> {
               ),
               const SizedBox(height: 8),
               const Text(
-                'Several Groq calls run one after another, with pauses to '
+                'Several Sarvam calls run one after another, with pauses to '
                 'stay under its free-tier rate limit — this can take a few '
-                'minutes, longer if Groq is busy. If this line keeps '
+                'minutes, longer if Sarvam is busy. If this line keeps '
                 'changing, it\'s working.',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: AppColors.slate600, fontSize: 12),
@@ -116,7 +116,7 @@ class _DailySprintLoadingScreenState extends State<DailySprintLoadingScreen> {
                 color: AppColors.slate600, size: 48),
             const SizedBox(height: 16),
             const Text(
-              'Add your Groq API key in Settings before starting a Daily Sprint.',
+              'Add your Sarvam API key in Settings before starting a Daily Sprint.',
               style: TextStyle(
                   color: AppColors.slate300, fontSize: 15, height: 1.4),
             ),

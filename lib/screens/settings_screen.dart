@@ -1,6 +1,6 @@
 // ============================================================================
 // SETTINGS SCREEN
-// One field: Groq API key. Masked input, Save / Clear. No "test
+// One field: Sarvam API key. Masked input, Save / Clear. No "test
 // connection" call — validation happens naturally the first time the key
 // is used to generate a Legal Reasoning test.
 // ============================================================================
@@ -79,7 +79,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const Text(
-                      'Groq API Key',
+                      'Sarvam API Key',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -100,7 +100,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       obscureText: true,
                       style: const TextStyle(color: AppColors.slate100),
                       decoration: InputDecoration(
-                        hintText: 'Paste your Groq API key',
+                        hintText: 'Paste your Sarvam API key',
                         hintStyle:
                             const TextStyle(color: AppColors.slate600),
                         filled: true,

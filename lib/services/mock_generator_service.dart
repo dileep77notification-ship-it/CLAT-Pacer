@@ -1,9 +1,9 @@
 // ============================================================================
 // MOCK TEST GENERATOR SERVICE
-// Orchestrates all 5 section generators in GroqService into one combined,
+// Orchestrates all 5 section generators in SarvamService into one combined,
 // section-tagged question list for Full Mock Test Mode (§8). Generation
 // happens entirely BEFORE the exam timer starts (see MockLoadingScreen) —
-// the exam clock should time the student, not Groq's rate limit.
+// the exam clock should time the student, not Sarvam's rate limit.
 //
 // Two configs are defined below: kHalfMockConfig (~60 Qs / 60 min, halved
 // from the real pattern and rounded to keep proportions) and
@@ -16,7 +16,7 @@
 // ============================================================================
 
 import '../models/quiz_models.dart';
-import 'grok_service.dart';
+import 'sarvam_service.dart';
 import 'rss_service.dart';
 
 class MockSectionSpec {
@@ -64,7 +64,7 @@ const MockConfig kHalfMockConfig = MockConfig(
 /// Full-scale mock, matching the real CLAT UG's ~120-question/120-minute
 /// pattern: English 20, GK/CA 30, Legal Reasoning 30, Logical Reasoning 28,
 /// Quant 12 = 120 total. Generation paces itself exactly like the half
-/// config (same per-section/per-batch pauses in GroqService and
+/// config (same per-section/per-batch pauses in SarvamService and
 /// _kSectionPause below) — it just takes roughly twice as long to generate,
 /// since nothing about the batching/backoff machinery changes with size.
 const MockConfig kFullMockConfig = MockConfig(
@@ -106,9 +106,9 @@ class MockGenerationProgress {
   });
 }
 
-// Same pacing constant Groq's own generators use between batches — applied
+// Same pacing constant Sarvam's own generators use between batches — applied
 // here too between SECTIONS, since switching sections is still back-to-back
-// Groq traffic against the same free-tier tokens/minute cap.
+// Sarvam traffic against the same free-tier tokens/minute cap.
 const Duration _kSectionPause = Duration(seconds: 10);
 
 class MockGeneratorService {
@@ -141,7 +141,7 @@ class MockGeneratorService {
       List<QuizQuestion> sectionQuestions;
       switch (spec.section) {
         case QuizSection.english:
-          sectionQuestions = await GroqService.generateEnglishQuestions(
+          sectionQuestions = await SarvamService.generateEnglishQuestions(
             apiKey: apiKey,
             count: spec.count,
             onProgress: reportSectionProgress,
@@ -150,7 +150,7 @@ class MockGeneratorService {
 
         case QuizSection.gkCurrentAffairs:
           headlines ??= await RssService.fetchAllHeadlines();
-          sectionQuestions = await GroqService.generateGkQuestions(
+          sectionQuestions = await SarvamService.generateGkQuestions(
             apiKey: apiKey,
             headlines: headlines,
             count: spec.count,
@@ -159,7 +159,7 @@ class MockGeneratorService {
           break;
 
         case QuizSection.legalReasoning:
-          sectionQuestions = await GroqService.generateQuestions(
+          sectionQuestions = await SarvamService.generateQuestions(
             apiKey: apiKey,
             count: spec.count,
             onProgress: reportSectionProgress,
@@ -168,7 +168,7 @@ class MockGeneratorService {
 
         case QuizSection.logicalReasoning:
           sectionQuestions =
-              await GroqService.generateLogicalReasoningQuestions(
+              await SarvamService.generateLogicalReasoningQuestions(
             apiKey: apiKey,
             count: spec.count,
             onProgress: reportSectionProgress,
@@ -176,7 +176,7 @@ class MockGeneratorService {
           break;
 
         case QuizSection.quant:
-          sectionQuestions = await GroqService.generateQuantQuestions(
+          sectionQuestions = await SarvamService.generateQuantQuestions(
             apiKey: apiKey,
             count: spec.count,
             onProgress: reportSectionProgress,

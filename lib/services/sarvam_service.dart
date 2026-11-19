@@ -1,19 +1,11 @@
 // ============================================================================
-// GROQ SERVICE
-// (File kept at its original path/history — grok_service.dart — to avoid
-// import churn. The class below is GroqService, not GrokService: Groq
-// (api.groq.com, this file) and Grok (xAI, the original provider) are two
-// different companies with near-identical names. Rename this file to
-// groq_service.dart at the next convenient refactor to remove the mismatch.)
+// SARVAM SERVICE
 //
-// OpenAI-compatible REST client against Groq's API, used for all CLAT
-// question generation. Groq's free tier has no billing, but is tightly
-// capped at 8,000 tokens/minute for this model (confirmed at
-// console.groq.com/settings/limits — see CLAT App spec §6.1). So every
-// generator here splits into small batches with a pause between them,
-// rather than one request per question or one giant request for N
-// questions — which is also what lets this scale to a future 120-question
-// mock (§8) without a rewrite.
+// OpenAI-compatible REST client against Sarvam AI's chat completions API
+// (api.sarvam.ai), used for all CLAT question generation. Sarvam's rate
+// limits are not documented publicly, so every generator keeps the small-
+// batch + pause + backoff approach (429 -> retry with delay) rather than
+// one giant request. That also lets this scale to a 120-question mock (§8).
 //
 // Covers three sections so far:
 //   - generateQuestions()               -> Legal Reasoning (principle + facts)
@@ -49,11 +41,11 @@ import 'package:http/http.dart' as http;
 import '../models/quiz_models.dart';
 import 'rss_service.dart';
 
-const String kGroqModel = 'qwen/qwen3.8-27b'; // <-- swap here if model changes
-const String _kGroqChatUrl =
-    'https://api.groq.com/openai/v1/chat/completions';
+const String kSarvamModel = 'sarvam-105b-conversations'; // <-- swap here if model changes
+const String _kSarvamChatUrl =
+    'https://api.sarvam.ai/v1/chat/completions';
 
-// Stay comfortably under this model's free-tier 8,000 tokens/minute cap.
+// Stay comfortably under this model's rate limit (Sarvam's limits are undocumented; tune if you see 429s).
 // Six questions per batch, with observed ~450-900 output tokens/question
 // plus prompt overhead, lands well under that ceiling even on the high end.
 const int _kMaxQuestionsPerBatch = 6;
@@ -220,9 +212,9 @@ polity, economy, legal_current_affairs, or static_gk.
 $_kOutputRules
 ''';
 
-class GroqApiException implements Exception {
+class SarvamApiException implements Exception {
   final String message;
-  GroqApiException(this.message);
+  SarvamApiException(this.message);
   @override
   String toString() => message;
 }
@@ -243,10 +235,10 @@ String _focusInstruction(String? focusTopic) {
       'Still set the "topic" field to "$focusTopic" for every question.';
 }
 
-class GroqService {
+class SarvamService {
   /// Generates [count] Legal Reasoning MCQs, internally split into batches
   /// of up to [_kMaxQuestionsPerBatch] with a pause between batches to stay
-  /// under Groq's free-tier tokens/minute cap. Safe to call with count=10
+  /// under Sarvam's free-tier tokens/minute cap. Safe to call with count=10
   /// (today's Legal Reasoning Test) or a much larger count later (a full
   /// mock) without changes at the call site. [onProgress], if given, is
   /// called after each batch completes with (questions generated so far,
@@ -396,13 +388,14 @@ class GroqService {
       try {
         response = await http
             .post(
-              Uri.parse(_kGroqChatUrl),
+              Uri.parse(_kSarvamChatUrl),
               headers: {
                 'Authorization': 'Bearer $apiKey',
+                'api-subscription-key': apiKey,
                 'Content-Type': 'application/json',
               },
               body: jsonEncode({
-                'model': kGroqModel,
+                'model': kSarvamModel,
                 'messages': [
                   {'role': 'system', 'content': _kEnglishSystemPrompt},
                   {'role': 'user', 'content': userContent},
@@ -423,11 +416,11 @@ class GroqService {
           await Future.delayed(_kRetryDelays[attempt - 1]);
           continue;
         }
-        throw GroqApiException('Network error — $e');
+        throw SarvamApiException('Network error — $e');
       }
 
       if (response.statusCode == 401 || response.statusCode == 403) {
-        throw GroqApiException('API key was rejected. Check it in Settings.');
+        throw SarvamApiException('API key was rejected. Check it in Settings.');
       }
 
       if (response.statusCode == 429 || response.statusCode == 503) {
@@ -435,18 +428,18 @@ class GroqService {
           await Future.delayed(_kRetryDelays[attempt - 1]);
           continue;
         }
-        throw GroqApiException(
-            'Groq is rate-limiting requests right now. Try again in a minute.');
+        throw SarvamApiException(
+            'Sarvam is rate-limiting requests right now. Try again in a minute.');
       }
 
       if (response.statusCode != 200) {
-        throw GroqApiException('Groq returned HTTP ${response.statusCode}.');
+        throw SarvamApiException('Sarvam returned HTTP ${response.statusCode}.');
       }
 
       return _parsePassageBatch(response.body);
     }
 
-    throw GroqApiException('Failed after $_kMaxAttempts attempts.');
+    throw SarvamApiException('Failed after $_kMaxAttempts attempts.');
   }
 
   static Map<String, dynamic> _submitRcPassageTool(int questionCount) => {
@@ -503,18 +496,18 @@ class GroqService {
     try {
       body = jsonDecode(responseBody) as Map<String, dynamic>;
     } catch (_) {
-      throw GroqApiException('Could not parse Groq\'s response.');
+      throw SarvamApiException('Could not parse Sarvam\'s response.');
     }
 
     List<dynamic> toolCalls;
     try {
       toolCalls = body['choices'][0]['message']['tool_calls'] as List<dynamic>;
     } catch (_) {
-      throw GroqApiException('Groq did not call the expected tool.');
+      throw SarvamApiException('Sarvam did not call the expected tool.');
     }
 
     if (toolCalls.isEmpty) {
-      throw GroqApiException('Groq\'s response had no tool call in it.');
+      throw SarvamApiException('Sarvam\'s response had no tool call in it.');
     }
 
     Map<String, dynamic> args;
@@ -522,17 +515,17 @@ class GroqService {
       final rawArgs = toolCalls[0]['function']['arguments'] as String;
       args = jsonDecode(rawArgs) as Map<String, dynamic>;
     } catch (_) {
-      throw GroqApiException('Could not parse Groq\'s tool arguments.');
+      throw SarvamApiException('Could not parse Sarvam\'s tool arguments.');
     }
 
     final passageBody = args['passage_body'] as String?;
     if (passageBody == null || passageBody.trim().isEmpty) {
-      throw GroqApiException('Groq\'s response had no passage text in it.');
+      throw SarvamApiException('Sarvam\'s response had no passage text in it.');
     }
 
     final rawQuestions = args['questions'];
     if (rawQuestions is! List || rawQuestions.isEmpty) {
-      throw GroqApiException('Groq\'s response had no questions in it.');
+      throw SarvamApiException('Sarvam\'s response had no questions in it.');
     }
 
     try {
@@ -541,8 +534,8 @@ class GroqService {
               .copyWith(passage: passageBody))
           .toList();
     } catch (e) {
-      throw GroqApiException(
-          'Question format from Groq didn\'t match what was expected ($e).');
+      throw SarvamApiException(
+          'Question format from Sarvam didn\'t match what was expected ($e).');
     }
   }
 
@@ -592,13 +585,14 @@ class GroqService {
       try {
         response = await http
             .post(
-              Uri.parse(_kGroqChatUrl),
+              Uri.parse(_kSarvamChatUrl),
               headers: {
                 'Authorization': 'Bearer $apiKey',
+                'api-subscription-key': apiKey,
                 'Content-Type': 'application/json',
               },
               body: jsonEncode({
-                'model': kGroqModel,
+                'model': kSarvamModel,
                 'messages': [
                   {'role': 'system', 'content': systemPrompt},
                   {'role': 'user', 'content': userContent},
@@ -619,11 +613,11 @@ class GroqService {
           await Future.delayed(_kRetryDelays[attempt - 1]);
           continue;
         }
-        throw GroqApiException('Network error — $e');
+        throw SarvamApiException('Network error — $e');
       }
 
       if (response.statusCode == 401 || response.statusCode == 403) {
-        throw GroqApiException('API key was rejected. Check it in Settings.');
+        throw SarvamApiException('API key was rejected. Check it in Settings.');
       }
 
       if (response.statusCode == 429 || response.statusCode == 503) {
@@ -631,18 +625,18 @@ class GroqService {
           await Future.delayed(_kRetryDelays[attempt - 1]);
           continue;
         }
-        throw GroqApiException(
-            'Groq is rate-limiting requests right now. Try again in a minute.');
+        throw SarvamApiException(
+            'Sarvam is rate-limiting requests right now. Try again in a minute.');
       }
 
       if (response.statusCode != 200) {
-        throw GroqApiException('Groq returned HTTP ${response.statusCode}.');
+        throw SarvamApiException('Sarvam returned HTTP ${response.statusCode}.');
       }
 
       return _parseBatch(response.body);
     }
 
-    throw GroqApiException('Failed after $_kMaxAttempts attempts.');
+    throw SarvamApiException('Failed after $_kMaxAttempts attempts.');
   }
 
   static Map<String, dynamic> _submitMcqsTool(int count) => {
@@ -696,18 +690,18 @@ class GroqService {
     try {
       body = jsonDecode(responseBody) as Map<String, dynamic>;
     } catch (_) {
-      throw GroqApiException('Could not parse Groq\'s response.');
+      throw SarvamApiException('Could not parse Sarvam\'s response.');
     }
 
     List<dynamic> toolCalls;
     try {
       toolCalls = body['choices'][0]['message']['tool_calls'] as List<dynamic>;
     } catch (_) {
-      throw GroqApiException('Groq did not call the expected tool.');
+      throw SarvamApiException('Sarvam did not call the expected tool.');
     }
 
     if (toolCalls.isEmpty) {
-      throw GroqApiException('Groq\'s response had no tool call in it.');
+      throw SarvamApiException('Sarvam\'s response had no tool call in it.');
     }
 
     Map<String, dynamic> args;
@@ -715,12 +709,12 @@ class GroqService {
       final rawArgs = toolCalls[0]['function']['arguments'] as String;
       args = jsonDecode(rawArgs) as Map<String, dynamic>;
     } catch (_) {
-      throw GroqApiException('Could not parse Groq\'s tool arguments.');
+      throw SarvamApiException('Could not parse Sarvam\'s tool arguments.');
     }
 
     final rawQuestions = args['questions'];
     if (rawQuestions is! List || rawQuestions.isEmpty) {
-      throw GroqApiException('Groq\'s response had no questions in it.');
+      throw SarvamApiException('Sarvam\'s response had no questions in it.');
     }
 
     try {
@@ -728,8 +722,8 @@ class GroqService {
           .map((q) => QuizQuestion.fromJson(q as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      throw GroqApiException(
-          'Question format from Groq didn\'t match what was expected ($e).');
+      throw SarvamApiException(
+          'Question format from Sarvam didn\'t match what was expected ($e).');
     }
   }
 }

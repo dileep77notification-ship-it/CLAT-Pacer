@@ -2,7 +2,7 @@
 // FULL MOCK TEST — START / GENERATION SCREEN
 // Generates all questions across all 5 sections BEFORE the exam timer
 // starts (see mock_generator_service.dart) — the exam clock times the
-// student, not Groq. This step alone can take several minutes (5 sections,
+// student, not Sarvam. This step alone can take several minutes (5 sections,
 // paced ~10s apart plus multi-batch sections — longer still for the full
 // config), so progress is shown with both the current section and the
 // running overall count.
@@ -155,7 +155,7 @@ class _MockLoadingScreenState extends State<MockLoadingScreen> {
                 color: AppColors.slate600, size: 48),
             const SizedBox(height: 16),
             const Text(
-              'Add your Groq API key in Settings before starting a mock test.',
+              'Add your Sarvam API key in Settings before starting a mock test.',
               style: TextStyle(
                   color: AppColors.slate300, fontSize: 15, height: 1.4),
             ),
@@ -198,7 +198,7 @@ class _MockLoadingScreenState extends State<MockLoadingScreen> {
               const SizedBox(height: 8),
               Text(
                 p == null
-                    ? 'This can take a few minutes — Groq\'s free tier paces requests.'
+                    ? 'This can take a few minutes — Sarvam\'s free tier paces requests.'
                     : 'Overall: ${p.overallGenerated} of ${p.overallTotal} questions',
                 style: const TextStyle(color: AppColors.slate400, fontSize: 13),
                 textAlign: TextAlign.center,
@@ -314,7 +314,7 @@ class _MockLoadingScreenState extends State<MockLoadingScreen> {
                   )),
               const SizedBox(height: 10),
               const Text(
-                'All questions generate up front, before the timer starts — this can take several minutes on Groq\'s free tier.',
+                'All questions generate up front, before the timer starts — this can take several minutes on Sarvam\'s free tier.',
                 style: TextStyle(
                     color: AppColors.slate600, fontSize: 12, height: 1.4),
               ),

@@ -5,7 +5,7 @@
 // supported/unsupported-statement questions, rotated per passage. Handles
 // the no-key, loading, and error states; never crashes on a failed API
 // call. Loading state shows live progress since generation happens
-// passage-by-passage (see GroqService.generateEnglishQuestions). Uses the
+// passage-by-passage (see SarvamService.generateEnglishQuestions). Uses the
 // generic QuizTakingScreen (section: english), which renders each
 // question's shared passage text above it.
 // ============================================================================
@@ -14,7 +14,7 @@ import 'package:flutter/material.dart';
 import '../main.dart' show AppColors, AppStyle, IconBadge;
 import '../models/quiz_models.dart';
 import '../services/api_key_service.dart';
-import '../services/grok_service.dart';
+import '../services/sarvam_service.dart';
 import '../services/quiz_storage_service.dart';
 import 'settings_screen.dart';
 import 'quiz_taking_screen.dart';
@@ -59,7 +59,7 @@ class _EnglishScreenState extends State<EnglishScreen> {
         setState(() => _status = _Status.noKey);
         return;
       }
-      final questions = await GroqService.generateEnglishQuestions(
+      final questions = await SarvamService.generateEnglishQuestions(
         apiKey: key,
         count: 10,
         onProgress: (generated, total) {
@@ -122,7 +122,7 @@ class _EnglishScreenState extends State<EnglishScreen> {
                 color: AppColors.slate600, size: 48),
             const SizedBox(height: 16),
             const Text(
-              'Add your Groq API key in Settings before starting an English & Reading Comprehension practice set.',
+              'Add your Sarvam API key in Settings before starting an English & Reading Comprehension practice set.',
               style: TextStyle(
                   color: AppColors.slate300, fontSize: 15, height: 1.4),
             ),

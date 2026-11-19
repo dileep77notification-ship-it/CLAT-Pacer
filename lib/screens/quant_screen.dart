@@ -5,7 +5,7 @@
 // ratio, average, interest, profit/loss, speed-distance-time, or data
 // interpretation. Handles the no-key, loading, and error states; never
 // crashes on a failed API call. Loading state shows live progress since
-// generation happens in batches (see GroqService). Uses the generic
+// generation happens in batches (see SarvamService). Uses the generic
 // QuizTakingScreen (section: quant) rather than a section-specific quiz
 // screen.
 // ============================================================================
@@ -14,7 +14,7 @@ import 'package:flutter/material.dart';
 import '../main.dart' show AppColors, AppStyle, IconBadge;
 import '../models/quiz_models.dart';
 import '../services/api_key_service.dart';
-import '../services/grok_service.dart';
+import '../services/sarvam_service.dart';
 import '../services/quiz_storage_service.dart';
 import 'settings_screen.dart';
 import 'quiz_taking_screen.dart';
@@ -59,7 +59,7 @@ class _QuantScreenState extends State<QuantScreen> {
         setState(() => _status = _Status.noKey);
         return;
       }
-      final questions = await GroqService.generateQuantQuestions(
+      final questions = await SarvamService.generateQuantQuestions(
         apiKey: key,
         count: 10,
         onProgress: (generated, total) {
@@ -122,7 +122,7 @@ class _QuantScreenState extends State<QuantScreen> {
                 color: AppColors.slate600, size: 48),
             const SizedBox(height: 16),
             const Text(
-              'Add your Groq API key in Settings before starting a Quantitative Techniques practice set.',
+              'Add your Sarvam API key in Settings before starting a Quantitative Techniques practice set.',
               style: TextStyle(
                   color: AppColors.slate300, fontSize: 15, height: 1.4),
             ),

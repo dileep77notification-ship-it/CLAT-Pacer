@@ -1,6 +1,6 @@
 // ============================================================================
 // DAILY ARTICLE SERVICE
-// Spec §6: fetch today's headlines (RssService), have Groq pick the most
+// Spec §6: fetch today's headlines (RssService), have Sarvam pick the most
 // CLAT-relevant stories and write an original CLAT-style passage + 5 MCQs +
 // 5 flashcards for each. This is the live replacement for main.dart's old
 // hardcoded `todaysSprint` constant, and the same output doubles as seed
@@ -9,11 +9,11 @@
 // Nov 2026: expanded from a single daily passage to 3-4, now that RSS
 // sourcing covers five feeds (The Hindu National/Editorial, Bar & Bench,
 // Indian Express Explained, LiveLaw Top Stories) instead of three. Each
-// passage is still generated with its own Groq call, same shape and same
+// passage is still generated with its own Sarvam call, same shape and same
 // ~3500 max_tokens budget as the original single-passage design — doing one
 // giant call for 4 passages at once would multiply output tokens ~4x and
-// risk tripping Groq's free-tier 8,000 tokens/minute cap in a single
-// request. Sequential calls paced 10s apart (matching GroqService's
+// risk tripping Sarvam's rate limit (Sarvam's limits are undocumented; tune if you see 429s) in a single
+// request. Sequential calls paced 10s apart (matching SarvamService's
 // batching convention elsewhere in this app) are slower but safe, and a
 // failure on one slot doesn't cost the others — same "skip what fails"
 // resilience RssService already uses for feeds.
@@ -24,9 +24,9 @@ import 'package:http/http.dart' as http;
 import '../models/daily_sprint_models.dart';
 import 'rss_service.dart';
 
-const String _kGroqModel = 'qwen/qwen3.8-27b';
-const String _kGroqChatUrl =
-    'https://api.groq.com/openai/v1/chat/completions';
+const String _kSarvamModel = 'sarvam-105b-conversations';
+const String _kSarvamChatUrl =
+    'https://api.sarvam.ai/v1/chat/completions';
 
 const int _kMaxAttempts = 4;
 const List<Duration> _kRetryDelays = [
@@ -40,12 +40,12 @@ const List<Duration> _kRetryDelays = [
 /// generation attempt fails outright after retries.
 ///
 /// Dropped from 4 to 3 (Nov 2026) after real-world testing showed 4
-/// sequential calls right before using another Groq-backed feature (e.g.
+/// sequential calls right before using another Sarvam-backed feature (e.g.
 /// Legal Reasoning) was enough to trip the free-tier per-minute limit on
 /// the next feature's own request. 3 leaves more headroom.
 const int kDailySprintPassageCount = 3;
 
-/// Pause between each passage's Groq call. Widened from 10s to 15s for the
+/// Pause between each passage's Sarvam call. Widened from 10s to 15s for the
 /// same reason as the count drop above — more breathing room under the
 /// free-tier rate limit, at the cost of a slightly longer total wait.
 const Duration _kBetweenPassagesPause = Duration(seconds: 15);
@@ -105,7 +105,7 @@ IMPORTANT RULES:
 class DailyArticleService {
   /// Generates today's full set of Daily Sprint passages (3-4, see
   /// [kDailySprintPassageCount]). Fetches headlines once, then makes one
-  /// Groq call per passage, each told which stories earlier calls already
+  /// Sarvam call per passage, each told which stories earlier calls already
   /// used so the set doesn't repeat a story.
   ///
   /// Throws only if every single attempt fails and nothing could be
@@ -153,7 +153,7 @@ class DailyArticleService {
       final isLast = i == count - 1;
       if (!isLast) {
         onProgress?.call('Pausing briefly before the next story '
-            '(keeps Groq\'s rate limit happy)…');
+            '(keeps Sarvam\'s rate limit happy)…');
         await Future.delayed(_kBetweenPassagesPause);
       }
     }
@@ -177,13 +177,14 @@ class DailyArticleService {
       try {
         response = await http
             .post(
-              Uri.parse(_kGroqChatUrl),
+              Uri.parse(_kSarvamChatUrl),
               headers: {
                 'Authorization': 'Bearer $apiKey',
+                'api-subscription-key': apiKey,
                 'Content-Type': 'application/json',
               },
               body: jsonEncode({
-                'model': _kGroqModel,
+                'model': _kSarvamModel,
                 'messages': [
                   {
                     'role': 'system',
@@ -220,16 +221,16 @@ class DailyArticleService {
 
       if (response.statusCode == 429 || response.statusCode == 503) {
         if (attempt < _kMaxAttempts) {
-          onRetry?.call(attempt, 'Groq is rate-limiting requests');
+          onRetry?.call(attempt, 'Sarvam is rate-limiting requests');
           await Future.delayed(_kRetryDelays[attempt - 1]);
           continue;
         }
         throw DailyArticleException(
-            'Groq is rate-limiting requests right now. Try again in a minute.');
+            'Sarvam is rate-limiting requests right now. Try again in a minute.');
       }
 
       if (response.statusCode != 200) {
-        throw DailyArticleException('Groq returned HTTP ${response.statusCode}.');
+        throw DailyArticleException('Sarvam returned HTTP ${response.statusCode}.');
       }
 
       return _parsePassage(response.body);
@@ -300,17 +301,17 @@ class DailyArticleService {
     try {
       body = jsonDecode(responseBody) as Map<String, dynamic>;
     } catch (_) {
-      throw DailyArticleException('Could not parse Groq\'s response.');
+      throw DailyArticleException('Could not parse Sarvam\'s response.');
     }
 
     List<dynamic> toolCalls;
     try {
       toolCalls = body['choices'][0]['message']['tool_calls'] as List<dynamic>;
     } catch (_) {
-      throw DailyArticleException('Groq did not call the expected tool.');
+      throw DailyArticleException('Sarvam did not call the expected tool.');
     }
     if (toolCalls.isEmpty) {
-      throw DailyArticleException('Groq\'s response had no tool call in it.');
+      throw DailyArticleException('Sarvam\'s response had no tool call in it.');
     }
 
     Map<String, dynamic> args;
@@ -318,7 +319,7 @@ class DailyArticleService {
       final rawArgs = toolCalls[0]['function']['arguments'] as String;
       args = jsonDecode(rawArgs) as Map<String, dynamic>;
     } catch (_) {
-      throw DailyArticleException('Could not parse Groq\'s tool arguments.');
+      throw DailyArticleException('Could not parse Sarvam\'s tool arguments.');
     }
 
     try {
@@ -343,7 +344,7 @@ class DailyArticleService {
           .toList();
 
       if (questions.isEmpty || flashcards.isEmpty) {
-        throw DailyArticleException('Groq\'s response was missing questions or flashcards.');
+        throw DailyArticleException('Sarvam\'s response was missing questions or flashcards.');
       }
 
       final sourceHeadline = args['source_headline'] as String? ?? '';
@@ -359,7 +360,7 @@ class DailyArticleService {
       );
     } catch (e) {
       throw DailyArticleException(
-          'Passage format from Groq didn\'t match what was expected ($e).');
+          'Passage format from Sarvam didn\'t match what was expected ($e).');
     }
   }
 }
