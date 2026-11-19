@@ -240,7 +240,7 @@ class _BrainGymScreenState extends State<BrainGymScreen> {
     switch (_loadState) {
       case _LoadState.loading:
         return const Center(
-          child: CircularProgressIndicator(color: AppColors.indigo400),
+          child: CircularProgressIndicator(color: AppColors.primaryText),
         );
 
       case _LoadState.error:
@@ -251,12 +251,12 @@ class _BrainGymScreenState extends State<BrainGymScreen> {
             children: [
               const SizedBox(height: 40),
               const Icon(Icons.error_outline_rounded,
-                  color: AppColors.rose400, size: 48),
+                  color: AppColors.dangerText, size: 48),
               const SizedBox(height: 16),
               Text(
                 "Couldn't load your weak topics — ${_loadError ?? 'unknown error'}",
                 style: const TextStyle(
-                    color: AppColors.slate300, fontSize: 15, height: 1.4),
+                    color: AppColors.textBody, fontSize: 15, height: 1.4),
               ),
               const SizedBox(height: 20),
               SizedBox(
@@ -277,7 +277,7 @@ class _BrainGymScreenState extends State<BrainGymScreen> {
               Center(
                 child: IconBadge(
                   icon: Icons.fitness_center_rounded,
-                  color: AppColors.indigo400,
+                  color: AppColors.primaryText,
                   size: 64,
                 ),
               ),
@@ -288,7 +288,7 @@ class _BrainGymScreenState extends State<BrainGymScreen> {
                 style: TextStyle(
                   fontSize: 19,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.slate100,
+                  color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 8),
@@ -298,7 +298,7 @@ class _BrainGymScreenState extends State<BrainGymScreen> {
                 "Brain Gym will show you where you're weakest.",
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                    color: AppColors.slate400, fontSize: 14, height: 1.5),
+                    color: AppColors.textMuted, fontSize: 14, height: 1.5),
               ),
             ],
           ),
@@ -307,8 +307,8 @@ class _BrainGymScreenState extends State<BrainGymScreen> {
       case _LoadState.ready:
         return RefreshIndicator(
           onRefresh: _load,
-          color: AppColors.indigo400,
-          backgroundColor: AppColors.slate900,
+          color: AppColors.primaryText,
+          backgroundColor: AppColors.surface,
           child: ListView(
             padding: const EdgeInsets.all(20),
             children: [
@@ -329,8 +329,8 @@ class _BrainGymScreenState extends State<BrainGymScreen> {
     final icon = _kSectionIcons[stat.section] ?? Icons.quiz_rounded;
     final accuracyPct = (stat.accuracy * 100).round();
     final accuracyColor = stat.accuracy < 0.4
-        ? AppColors.rose400
-        : (stat.accuracy < 0.7 ? AppColors.amber400 : AppColors.emerald400);
+        ? AppColors.dangerText
+        : (stat.accuracy < 0.7 ? AppColors.warningText : AppColors.successText);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -343,13 +343,13 @@ class _BrainGymScreenState extends State<BrainGymScreen> {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.slate900,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(AppStyle.radiusLg),
-              border: Border.all(color: AppColors.slate800),
+              border: Border.all(color: AppColors.tint),
             ),
             child: Row(
               children: [
-                IconBadge(icon: icon, color: AppColors.indigo400),
+                IconBadge(icon: icon, color: AppColors.primaryText),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
@@ -360,14 +360,14 @@ class _BrainGymScreenState extends State<BrainGymScreen> {
                         style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.slate100,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 3),
                       Text(
                         '$sectionLabel · ${stat.attempts} attempts',
                         style: const TextStyle(
-                            color: AppColors.slate400, fontSize: 12.5),
+                            color: AppColors.textMuted, fontSize: 12.5),
                       ),
                     ],
                   ),
@@ -387,13 +387,13 @@ class _BrainGymScreenState extends State<BrainGymScreen> {
                     const Text(
                       'accuracy',
                       style:
-                          TextStyle(color: AppColors.slate600, fontSize: 11),
+                          TextStyle(color: AppColors.textFaint, fontSize: 11),
                     ),
                   ],
                 ),
                 const SizedBox(width: 6),
                 const Icon(Icons.chevron_right_rounded,
-                    color: AppColors.slate600),
+                    color: AppColors.textFaint),
               ],
             ),
           ),
@@ -415,12 +415,12 @@ class _BrainGymScreenState extends State<BrainGymScreen> {
             children: [
               const SizedBox(height: 40),
               const Icon(Icons.key_off_rounded,
-                  color: AppColors.slate600, size: 48),
+                  color: AppColors.textFaint, size: 48),
               const SizedBox(height: 16),
               const Text(
                 'Add your Sarvam API key in Settings before drilling a weak topic.',
                 style: TextStyle(
-                    color: AppColors.slate300, fontSize: 15, height: 1.4),
+                    color: AppColors.textBody, fontSize: 15, height: 1.4),
               ),
               const SizedBox(height: 20),
               SizedBox(
@@ -460,12 +460,12 @@ class _BrainGymScreenState extends State<BrainGymScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const CircularProgressIndicator(color: AppColors.indigo400),
+              const CircularProgressIndicator(color: AppColors.primaryText),
               const SizedBox(height: 16),
               Text(
                 'Drilling "$topicLabel"…',
                 style: const TextStyle(
-                  color: AppColors.slate100,
+                  color: AppColors.textPrimary,
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
                 ),
@@ -475,7 +475,7 @@ class _BrainGymScreenState extends State<BrainGymScreen> {
                 _progressGenerated == 0
                     ? 'Generating $_progressTotal fresh questions…'
                     : 'Generated $_progressGenerated of $_progressTotal…',
-                style: const TextStyle(color: AppColors.slate400, fontSize: 13),
+                style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
               ),
             ],
           ),
@@ -489,12 +489,12 @@ class _BrainGymScreenState extends State<BrainGymScreen> {
             children: [
               const SizedBox(height: 40),
               const Icon(Icons.error_outline_rounded,
-                  color: AppColors.rose400, size: 48),
+                  color: AppColors.dangerText, size: 48),
               const SizedBox(height: 16),
               Text(
                 "Couldn't generate the drill — ${_drillError ?? 'unknown error'}",
                 style: const TextStyle(
-                    color: AppColors.slate300, fontSize: 15, height: 1.4),
+                    color: AppColors.textBody, fontSize: 15, height: 1.4),
               ),
               const SizedBox(height: 20),
               SizedBox(

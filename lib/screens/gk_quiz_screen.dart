@@ -119,7 +119,7 @@ class _GkQuizScreenState extends State<GkQuizScreen> {
     switch (_status) {
       case _Status.checking:
         return const Center(
-          child: CircularProgressIndicator(color: AppColors.indigo400),
+          child: CircularProgressIndicator(color: AppColors.primaryText),
         );
 
       case _Status.noKey:
@@ -128,12 +128,12 @@ class _GkQuizScreenState extends State<GkQuizScreen> {
           children: [
             const SizedBox(height: 40),
             const Icon(Icons.key_off_rounded,
-                color: AppColors.slate600, size: 48),
+                color: AppColors.textFaint, size: 48),
             const SizedBox(height: 16),
             const Text(
               'Add your Sarvam API key in Settings before starting a GK / Current Affairs quiz.',
               style: TextStyle(
-                  color: AppColors.slate300, fontSize: 15, height: 1.4),
+                  color: AppColors.textBody, fontSize: 15, height: 1.4),
             ),
             const SizedBox(height: 20),
             SizedBox(
@@ -158,13 +158,13 @@ class _GkQuizScreenState extends State<GkQuizScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const CircularProgressIndicator(color: AppColors.indigo400),
+              const CircularProgressIndicator(color: AppColors.primaryText),
               const SizedBox(height: 16),
               Text(
                 _progressGenerated == 0
                     ? _loadingLabel
                     : 'Generated $_progressGenerated of $_progressTotal…',
-                style: const TextStyle(color: AppColors.slate400),
+                style: const TextStyle(color: AppColors.textMuted),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -177,12 +177,12 @@ class _GkQuizScreenState extends State<GkQuizScreen> {
           children: [
             const SizedBox(height: 40),
             const Icon(Icons.error_outline_rounded,
-                color: AppColors.rose400, size: 48),
+                color: AppColors.dangerText, size: 48),
             const SizedBox(height: 16),
             Text(
               "Couldn't generate questions — ${_error ?? 'unknown error'}",
               style: const TextStyle(
-                  color: AppColors.slate300, fontSize: 15, height: 1.4),
+                  color: AppColors.textBody, fontSize: 15, height: 1.4),
             ),
             const SizedBox(height: 20),
             SizedBox(
@@ -200,7 +200,7 @@ class _GkQuizScreenState extends State<GkQuizScreen> {
             Center(
               child: IconBadge(
                 icon: Icons.public_rounded,
-                color: AppColors.amber400,
+                color: AppColors.warning,
                 size: 64,
               ),
             ),
@@ -208,7 +208,7 @@ class _GkQuizScreenState extends State<GkQuizScreen> {
             const Text(
               '10 fresh multiple-choice questions mixing today\'s current affairs with static GK, in the CLAT pattern.',
               style: TextStyle(
-                  color: AppColors.slate300, fontSize: 15, height: 1.4),
+                  color: AppColors.textBody, fontSize: 15, height: 1.4),
             ),
             const SizedBox(height: 20),
             SizedBox(

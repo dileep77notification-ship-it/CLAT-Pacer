@@ -112,11 +112,11 @@ class _MockLoadingScreenState extends State<MockLoadingScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.indigo500.withOpacity(0.15)
-              : AppColors.slate900,
+              ? AppColors.primary.withOpacity(0.15)
+              : AppColors.surface,
           borderRadius: BorderRadius.circular(AppStyle.radiusLg),
           border: Border.all(
-            color: isSelected ? AppColors.indigo500 : AppColors.slate800,
+            color: isSelected ? AppColors.primary : AppColors.tint,
             width: isSelected ? 1.6 : 1,
           ),
         ),
@@ -127,12 +127,12 @@ class _MockLoadingScreenState extends State<MockLoadingScreen> {
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: isSelected ? AppColors.indigo400 : AppColors.slate100,
+                  color: isSelected ? AppColors.primaryText : AppColors.textPrimary,
                 )),
             const SizedBox(height: 2),
             Text(subtitle,
                 style: const TextStyle(
-                    color: AppColors.slate400, fontSize: 12.5)),
+                    color: AppColors.textMuted, fontSize: 12.5)),
           ],
         ),
       ),
@@ -143,7 +143,7 @@ class _MockLoadingScreenState extends State<MockLoadingScreen> {
     switch (_status) {
       case _Status.checking:
         return const Center(
-          child: CircularProgressIndicator(color: AppColors.indigo400),
+          child: CircularProgressIndicator(color: AppColors.primaryText),
         );
 
       case _Status.noKey:
@@ -152,12 +152,12 @@ class _MockLoadingScreenState extends State<MockLoadingScreen> {
           children: [
             const SizedBox(height: 40),
             const Icon(Icons.key_off_rounded,
-                color: AppColors.slate600, size: 48),
+                color: AppColors.textFaint, size: 48),
             const SizedBox(height: 16),
             const Text(
               'Add your Sarvam API key in Settings before starting a mock test.',
               style: TextStyle(
-                  color: AppColors.slate300, fontSize: 15, height: 1.4),
+                  color: AppColors.textBody, fontSize: 15, height: 1.4),
             ),
             const SizedBox(height: 20),
             SizedBox(
@@ -183,14 +183,14 @@ class _MockLoadingScreenState extends State<MockLoadingScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const CircularProgressIndicator(color: AppColors.indigo400),
+              const CircularProgressIndicator(color: AppColors.primaryText),
               const SizedBox(height: 20),
               Text(
                 p == null
                     ? 'Starting generation…'
                     : 'Section ${p.sectionIndex + 1} of ${p.totalSections}: ${p.sectionLabel}',
                 style: const TextStyle(
-                    color: AppColors.slate100,
+                    color: AppColors.textPrimary,
                     fontSize: 15,
                     fontWeight: FontWeight.w600),
                 textAlign: TextAlign.center,
@@ -200,7 +200,7 @@ class _MockLoadingScreenState extends State<MockLoadingScreen> {
                 p == null
                     ? 'This can take a few minutes — Sarvam\'s free tier paces requests.'
                     : 'Overall: ${p.overallGenerated} of ${p.overallTotal} questions',
-                style: const TextStyle(color: AppColors.slate400, fontSize: 13),
+                style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
                 textAlign: TextAlign.center,
               ),
               if (p != null) ...[
@@ -210,8 +210,8 @@ class _MockLoadingScreenState extends State<MockLoadingScreen> {
                   child: LinearProgressIndicator(
                     value: p.overallGenerated / p.overallTotal,
                     minHeight: 6,
-                    backgroundColor: AppColors.slate800,
-                    color: AppColors.indigo500,
+                    backgroundColor: AppColors.tint,
+                    color: AppColors.primary,
                   ),
                 ),
               ],
@@ -225,12 +225,12 @@ class _MockLoadingScreenState extends State<MockLoadingScreen> {
           children: [
             const SizedBox(height: 40),
             const Icon(Icons.error_outline_rounded,
-                color: AppColors.rose400, size: 48),
+                color: AppColors.dangerText, size: 48),
             const SizedBox(height: 16),
             Text(
               "Couldn't generate the mock — ${_error ?? 'unknown error'}",
               style: const TextStyle(
-                  color: AppColors.slate300, fontSize: 15, height: 1.4),
+                  color: AppColors.textBody, fontSize: 15, height: 1.4),
             ),
             const SizedBox(height: 20),
             SizedBox(
@@ -249,7 +249,7 @@ class _MockLoadingScreenState extends State<MockLoadingScreen> {
               const Center(
                 child: IconBadge(
                   icon: Icons.assignment_rounded,
-                  color: AppColors.indigo400,
+                  color: AppColors.primaryText,
                   size: 64,
                 ),
               ),
@@ -277,7 +277,7 @@ class _MockLoadingScreenState extends State<MockLoadingScreen> {
               Text(
                 '${_config.name} — ${_config.totalQuestions} questions, ${_config.durationMinutes} minutes',
                 style: const TextStyle(
-                    color: AppColors.slate100,
+                    color: AppColors.textPrimary,
                     fontSize: 16,
                     fontWeight: FontWeight.w700),
               ),
@@ -285,7 +285,7 @@ class _MockLoadingScreenState extends State<MockLoadingScreen> {
               const Text(
                 '+1 for each correct answer, -0.25 for each wrong answer, 0 for unattempted — the standard CLAT scheme.',
                 style: TextStyle(
-                    color: AppColors.slate400, fontSize: 13, height: 1.4),
+                    color: AppColors.textMuted, fontSize: 13, height: 1.4),
               ),
               const SizedBox(height: 18),
               ..._config.sections.map((s) => Padding(
@@ -296,7 +296,7 @@ class _MockLoadingScreenState extends State<MockLoadingScreen> {
                           width: 6,
                           height: 6,
                           decoration: const BoxDecoration(
-                            color: AppColors.indigo400,
+                            color: AppColors.primaryText,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -304,11 +304,11 @@ class _MockLoadingScreenState extends State<MockLoadingScreen> {
                         Expanded(
                           child: Text(s.label,
                               style: const TextStyle(
-                                  color: AppColors.slate200, fontSize: 14)),
+                                  color: AppColors.textSoft, fontSize: 14)),
                         ),
                         Text('${s.count} Qs',
                             style: const TextStyle(
-                                color: AppColors.slate400, fontSize: 13)),
+                                color: AppColors.textMuted, fontSize: 13)),
                       ],
                     ),
                   )),
@@ -316,7 +316,7 @@ class _MockLoadingScreenState extends State<MockLoadingScreen> {
               const Text(
                 'All questions generate up front, before the timer starts — this can take several minutes on Sarvam\'s free tier.',
                 style: TextStyle(
-                    color: AppColors.slate600, fontSize: 12, height: 1.4),
+                    color: AppColors.textFaint, fontSize: 12, height: 1.4),
               ),
               const SizedBox(height: 20),
               SizedBox(
